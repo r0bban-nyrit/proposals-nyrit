@@ -67,8 +67,8 @@ export default function Index() {
         description="Välkommen till din offerthantering"
       />
       
-      <div className="grid gap-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           <Card 
             className="cursor-pointer hover:shadow-md transition-shadow" 
             onClick={() => navigateToFilteredQuotes("draft")}
@@ -136,10 +136,10 @@ export default function Index() {
           </Card>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="md:col-span-2">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+          <Card className="lg:col-span-2">
             <CardHeader>
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <div>
                   <CardTitle>Senaste offerterna</CardTitle>
                   <CardDescription>
@@ -149,7 +149,7 @@ export default function Index() {
                 <Button 
                   variant="outline" 
                   onClick={() => navigate("/offerter")}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 w-full sm:w-auto"
                 >
                   <span>Visa alla</span>
                   <ExternalLink className="h-4 w-4" />

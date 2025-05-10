@@ -11,6 +11,7 @@ import SkapaOffert from "./pages/SkapaOffert";
 import Profil from "./pages/Profil";
 import Installningar from "./pages/Installningar";
 import NotFound from "./pages/NotFound";
+import { MobileHeader } from "./components/MobileHeader";
 
 // Create a new QueryClient instance inside the component
 function App() {
@@ -24,15 +25,18 @@ function App() {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/offerter" element={<Offerter />} />
-              <Route path="/skapa-offert" element={<SkapaOffert />} />
-              <Route path="/skapa-offert/:id" element={<SkapaOffert />} />
-              <Route path="/profil" element={<Profil />} />
-              <Route path="/installningar" element={<Installningar />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <MobileHeader title="OffertPro" />
+            <div className="pt-14 md:pt-0"> {/* Add padding top on mobile for fixed header */}
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/offerter" element={<Offerter />} />
+                <Route path="/skapa-offert" element={<SkapaOffert />} />
+                <Route path="/skapa-offert/:id" element={<SkapaOffert />} />
+                <Route path="/profil" element={<Profil />} />
+                <Route path="/installningar" element={<Installningar />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
           </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>

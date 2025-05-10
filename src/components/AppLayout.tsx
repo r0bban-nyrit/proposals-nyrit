@@ -1,18 +1,21 @@
 
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
+  const isMobile = useIsMobile();
+  
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full">
+    <SidebarProvider defaultCollapsed={isMobile}>
+      <div className="flex min-h-screen w-full flex-col md:flex-row">
         <AppSidebar />
         <main className="flex-1 overflow-y-auto">
-          <div className="container py-6 max-w-7xl">
+          <div className="container py-4 md:py-6 px-4 md:px-6 max-w-7xl">
             {children}
           </div>
         </main>

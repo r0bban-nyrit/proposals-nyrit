@@ -8,6 +8,7 @@ import { QuoteListItem } from "@/components/QuoteListItem";
 import { Plus } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Offerter() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
@@ -15,6 +16,7 @@ export default function Offerter() {
   const [activeTab, setActiveTab] = useState("all");
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     // Load quotes from localStorage
@@ -62,24 +64,36 @@ export default function Offerter() {
 
   return (
     <AppLayout>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 md:mb-6">
         <Header title="Offerter" description="Hantera dina offerter" />
-        <Button onClick={() => navigate("/skapa-offert")}>
+        <Button onClick={() => navigate("/skapa-offert")} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Skapa ny offert
         </Button>
       </div>
       
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList>
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+        <TabsList className={`w-full ${isMobile ? 'grid grid-cols-2' : ''}`}>
           <TabsTrigger value="all">Alla ({quotes.length})</TabsTrigger>
           <TabsTrigger value="draft">Utkast ({draftQuotes.length})</TabsTrigger>
-          <TabsTrigger value="sent">Skickade ({sentQuotes.length})</TabsTrigger>
-          <TabsTrigger value="accepted">Accepterade ({acceptedQuotes.length})</TabsTrigger>
-          <TabsTrigger value="rejected">Avvisade ({rejectedQuotes.length})</TabsTrigger>
+          {!isMobile && (
+            <>
+              <TabsTrigger value="sent">Skickade ({sentQuotes.length})</TabsTrigger>
+              <TabsTrigger value="accepted">Accepterade ({acceptedQuotes.length})</TabsTrigger>
+              <TabsTrigger value="rejected">Avvisade ({rejectedQuotes.length})</TabsTrigger>
+            </>
+          )}
         </TabsList>
         
-        <TabsContent value="all" className="mt-6">
+        {isMobile && (
+          <TabsList className="w-full mt-2 grid grid-cols-3">
+            <TabsTrigger value="sent">Skickade ({sentQuotes.length})</TabsTrigger>
+            <TabsTrigger value="accepted">Accepterade ({acceptedQuotes.length})</TabsTrigger>
+            <TabsTrigger value="rejected">Avvisade ({rejectedQuotes.length})</TabsTrigger>
+          </TabsList>
+        )}
+        
+        <TabsContent value="all" className="mt-4 md:mt-6">
           {loading ? (
             <div className="text-center py-12">Laddar offerter...</div>
           ) : quotes.length > 0 ? (

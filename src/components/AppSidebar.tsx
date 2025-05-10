@@ -20,6 +20,7 @@ import {
   SidebarTrigger,
   useSidebar
 } from "@/components/ui/sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const navItems = [
   { 
@@ -52,6 +53,7 @@ const navItems = [
 export function AppSidebar() {
   const location = useLocation();
   const { state } = useSidebar();
+  const isMobile = useIsMobile();
   const currentPath = location.pathname;
   
   // Helper functions
@@ -72,8 +74,10 @@ export function AppSidebar() {
 
   return (
     <Sidebar 
-      className={`border-r border-gray-200 ${state === "collapsed" ? "w-16" : "w-64"} transition-all duration-300`}
-      collapsible="icon"
+      className={`border-r border-gray-200 ${state === "collapsed" ? "w-16" : "w-64"} ${
+        isMobile ? (state === "collapsed" ? "hidden" : "absolute z-40 h-screen bg-white") : "relative"
+      } transition-all duration-300`}
+      collapsible={isMobile ? "full" : "icon"}
     >
       <div className="flex h-14 items-center justify-between px-4">
         {state !== "collapsed" && (
@@ -85,7 +89,7 @@ export function AppSidebar() {
       </div>
 
       <SidebarContent className="px-2">
-        <SidebarGroup>
+        <SidebarGroup defaultOpen={isGroupExpanded}>
           <SidebarGroupLabel className={state === "collapsed" ? "sr-only" : ""}>
             Meny
           </SidebarGroupLabel>
