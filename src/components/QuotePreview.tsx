@@ -3,6 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Quote, BusinessProfile } from "@/types";
 import { format, parseISO } from "date-fns";
 import { sv } from "date-fns/locale";
+import { calculateItemPrice, calculateTotal, calculateSubtotal, calculateTotalRotDeduction } from "@/utils/quoteUtils";
+import { CircleCheck, Percent, Tag } from "lucide-react";
 
 interface QuotePreviewProps {
   quote: Quote;
@@ -10,16 +12,20 @@ interface QuotePreviewProps {
 }
 
 export default function QuotePreview({ quote, businessProfile }: QuotePreviewProps) {
-  const calculateTotal = () => {
-    return quote.items.reduce((sum, item) => sum + item.quantity * item.price, 0);
-  };
-
   const formatDate = (dateString: string) => {
     try {
       return format(parseISO(dateString), "d MMMM yyyy", { locale: sv });
     } catch (error) {
       return dateString;
     }
+  };
+
+  const renderDiscount = (type?: 'percentage' | 'amount', value?: number) => {
+    if (!value || value <= 0) return null;
+    
+    return type === 'percentage' 
+      ? `${value}%`
+      : `${value.toLocaleString()} kr`;
   };
 
   return (
@@ -88,6 +94,8 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
               <th className="py-2 text-right">Antal</th>
               <th className="py-2 text-left pl-4">Enhet</th>
               <th className="py-2 text-right">Á pris</th>
+              <th className="py-2 text-right">Rabatt</th>
+              <th className="py-2 text-center">ROT</th>
               <th className="py-2 text-right">Summa</th>
             </tr>
           </thead>
@@ -99,19 +107,67 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
                 <td className="py-3 text-left pl-4">{item.unit}</td>
                 <td className="py-3 text-right">{item.price.toLocaleString()} kr</td>
                 <td className="py-3 text-right">
-                  {(item.quantity * item.price).toLocaleString()} kr
+                  {renderDiscount(item.discountType, item.discountValue)}
+                </td>
+                <td className="py-3 text-center">
+                  {item.hasRotDeduction && <CircleCheck className="h-4 w-4 mx-auto text-green-600" />}
+                </td>
+                <td className="py-3 text-right">
+                  {calculateItemPrice(item).toLocaleString()} kr
                 </td>
               </tr>
             ))}
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan={3}></td>
-              <td className="pt-4 font-semibold text-right">Totalt:</td>
+              <td colSpan={5}></td>
+              <td className="pt-4 font-semibold text-right">Delsumma:</td>
               <td className="pt-4 font-semibold text-right">
-                {calculateTotal().toLocaleString()} kr
+                {calculateSubtotal(quote.items).toLocaleString()} kr
               </td>
             </tr>
+            
+            {(quote.totalDiscountValue && quote.totalDiscountValue > 0) && (
+              <tr>
+                <td colSpan={5}></td>
+                <td className="py-1 text-right">Rabatt:</td>
+                <td className="py-1 text-right">
+                  {quote.totalDiscountType === "percentage" 
+                    ? `${quote.totalDiscountValue}% (${(calculateSubtotal(quote.items) * quote.totalDiscountValue / 100).toLocaleString()} kr)`
+                    : `${quote.totalDiscountValue.toLocaleString()} kr`}
+                </td>
+              </tr>
+            )}
+            
+            <tr>
+              <td colSpan={5}></td>
+              <td className="pt-2 font-semibold text-right border-t border-gray-300">Totalt:</td>
+              <td className="pt-2 font-semibold text-right border-t border-gray-300">
+                {calculateTotal(quote.items, quote.totalDiscountType, quote.totalDiscountValue).toLocaleString()} kr
+              </td>
+            </tr>
+            
+            {calculateTotalRotDeduction(quote.items) > 0 && (
+              <>
+                <tr>
+                  <td colSpan={5}></td>
+                  <td className="py-1 text-right text-green-600">ROT-avdrag:</td>
+                  <td className="py-1 text-right text-green-600">
+                    {calculateTotalRotDeduction(quote.items).toLocaleString()} kr
+                  </td>
+                </tr>
+                <tr>
+                  <td colSpan={5}></td>
+                  <td className="pt-2 font-semibold text-right text-green-600 border-t border-gray-200">
+                    Att betala efter ROT:
+                  </td>
+                  <td className="pt-2 font-semibold text-right text-green-600 border-t border-gray-200">
+                    {(calculateTotal(quote.items, quote.totalDiscountType, quote.totalDiscountValue) - 
+                      calculateTotalRotDeduction(quote.items)).toLocaleString()} kr
+                  </td>
+                </tr>
+              </>
+            )}
           </tfoot>
         </table>
       </div>
@@ -131,6 +187,16 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
           <div className="bg-gray-50 p-4 rounded whitespace-pre-line">
             {quote.terms}
           </div>
+        </div>
+      )}
+      
+      {quote.items.some(item => item.hasRotDeduction) && (
+        <div className="mt-8 text-sm bg-green-50 p-4 rounded border border-green-200">
+          <h3 className="font-semibold mb-2 text-green-800">Information om ROT-avdrag:</h3>
+          <p className="text-green-800">
+            ROT-avdraget är ett skatteavdrag som ger privatpersoner möjlighet att få skattereduktion för arbetskostnader vid reparation, underhåll samt om- och tillbyggnad av bostäder. 
+            Avdraget uppgår till 30% av arbetskostnaden, upp till maximalt 50 000 kr per person och år.
+          </p>
         </div>
       )}
     </div>

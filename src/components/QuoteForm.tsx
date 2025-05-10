@@ -11,8 +11,13 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import QuotePreview from "./QuotePreview";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Trash2 } from "lucide-react";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Check, Plus, Trash2, Tag, Percent, CircleCheck } from "lucide-react";
 import { format } from "date-fns";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { serviceDescriptionSuggestions, calculateItemPrice, calculateTotal, calculateSubtotal, calculateTotalRotDeduction } from "@/utils/quoteUtils";
 
 interface QuoteFormProps {
   initialQuote?: Quote;
@@ -55,6 +60,8 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
     }
   );
 
+  const [openDescDropdown, setOpenDescDropdown] = useState<string | null>(null);
+
   const addItem = () => {
     setQuote({
       ...quote,
@@ -87,7 +94,7 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
     });
   };
 
-  const updateItem = (id: string, field: keyof QuoteItem, value: string | number) => {
+  const updateItem = (id: string, field: keyof QuoteItem, value: string | number | boolean) => {
     setQuote({
       ...quote,
       items: quote.items.map((item) =>
@@ -144,8 +151,25 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
     });
   };
 
-  const calculateTotal = () => {
-    return quote.items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+  const filterSuggestions = (value: string) => {
+    if (!value) return serviceDescriptionSuggestions;
+    
+    return serviceDescriptionSuggestions.filter((suggestion) =>
+      suggestion.toLowerCase().includes(value.toLowerCase())
+    );
+  };
+
+  const handleDescriptionSelect = (itemId: string, description: string) => {
+    updateItem(itemId, "description", description);
+    setOpenDescDropdown(null);
+  };
+
+  const calculateItemSubtotal = (item: QuoteItem): number => {
+    return calculateItemPrice(item);
+  };
+
+  const calculateDiscountedTotal = (): number => {
+    return calculateTotal(quote.items, quote.totalDiscountType, quote.totalDiscountValue);
   };
 
   return (
@@ -285,24 +309,65 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
             <CardContent>
               <div className="space-y-4">
                 <div className="grid grid-cols-12 gap-4 font-medium text-sm">
-                  <div className="col-span-5 sm:col-span-6">Beskrivning</div>
-                  <div className="col-span-2">Antal</div>
-                  <div className="col-span-2">Enhet</div>
+                  <div className="col-span-4 sm:col-span-5">Beskrivning</div>
+                  <div className="col-span-2 sm:col-span-1">Antal</div>
+                  <div className="col-span-2 sm:col-span-1">Enhet</div>
                   <div className="col-span-2">Á pris</div>
+                  <div className="col-span-2">Rabatt</div>
+                  <div className="col-span-1">ROT</div>
                   <div className="col-span-1"></div>
                 </div>
                 
                 {quote.items.map((item) => (
                   <div key={item.id} className="grid grid-cols-12 gap-4 items-center">
-                    <div className="col-span-5 sm:col-span-6">
-                      <Input
-                        value={item.description}
-                        onChange={(e) => updateItem(item.id, "description", e.target.value)}
-                        placeholder="Beskrivning av vara/tjänst"
-                        required
-                      />
+                    <div className="col-span-4 sm:col-span-5">
+                      <Popover open={openDescDropdown === item.id} onOpenChange={(open) => {
+                        if (open) {
+                          setOpenDescDropdown(item.id);
+                        } else {
+                          setOpenDescDropdown(null);
+                        }
+                      }}>
+                        <PopoverTrigger asChild>
+                          <div>
+                            <Input
+                              value={item.description}
+                              onChange={(e) => {
+                                updateItem(item.id, "description", e.target.value);
+                                // Open the dropdown when user starts typing
+                                if (e.target.value && !openDescDropdown) {
+                                  setOpenDescDropdown(item.id);
+                                }
+                              }}
+                              placeholder="Beskrivning av vara/tjänst"
+                              required
+                            />
+                          </div>
+                        </PopoverTrigger>
+                        <PopoverContent className="p-0" align="start">
+                          <Command>
+                            <CommandInput placeholder="Sök efter tjänster..." />
+                            <CommandList>
+                              <CommandEmpty>Inga förslag hittades.</CommandEmpty>
+                              <CommandGroup>
+                                {filterSuggestions(item.description).map((suggestion) => (
+                                  <CommandItem 
+                                    key={suggestion}
+                                    onSelect={() => handleDescriptionSelect(item.id, suggestion)}
+                                  >
+                                    {suggestion}
+                                    {suggestion === item.description && (
+                                      <Check className="ml-auto h-4 w-4" />
+                                    )}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </div>
-                    <div className="col-span-2">
+                    <div className="col-span-2 sm:col-span-1">
                       <Input
                         type="number"
                         min="1"
@@ -310,7 +375,7 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
                         onChange={(e) => updateItem(item.id, "quantity", parseFloat(e.target.value))}
                       />
                     </div>
-                    <div className="col-span-2">
+                    <div className="col-span-2 sm:col-span-1">
                       <Input
                         value={item.unit}
                         onChange={(e) => updateItem(item.id, "unit", e.target.value)}
@@ -324,6 +389,38 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
                         onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value))}
                       />
                     </div>
+                    <div className="col-span-2">
+                      <div className="flex space-x-1">
+                        <Select
+                          value={item.discountType || "amount"}
+                          onValueChange={(value: 'percentage' | 'amount') => updateItem(item.id, "discountType", value)}
+                        >
+                          <SelectTrigger className="w-[60px]">
+                            <SelectValue>
+                              {item.discountType === "percentage" ? <Percent className="h-4 w-4" /> : <Tag className="h-4 w-4" />}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="amount"><div className="flex items-center"><Tag className="h-4 w-4 mr-2" /> kr</div></SelectItem>
+                            <SelectItem value="percentage"><div className="flex items-center"><Percent className="h-4 w-4 mr-2" /> %</div></SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          type="number"
+                          min="0"
+                          value={item.discountValue || ""}
+                          onChange={(e) => updateItem(item.id, "discountValue", e.target.value ? parseFloat(e.target.value) : undefined)}
+                          placeholder="0"
+                          className="w-[80px]"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-span-1 text-center">
+                      <Checkbox
+                        checked={item.hasRotDeduction}
+                        onCheckedChange={(checked) => updateItem(item.id, "hasRotDeduction", !!checked)}
+                      />
+                    </div>
                     <div className="col-span-1">
                       <Button
                         type="button"
@@ -333,6 +430,12 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
+                    </div>
+                    <div className="col-span-11 text-right text-sm text-gray-500">
+                      Summa: {calculateItemSubtotal(item).toLocaleString()} kr
+                      {item.hasRotDeduction && (
+                        <span className="ml-2 text-green-600">(ROT-avdrag: {(calculateItemSubtotal(item) * 0.3).toLocaleString()} kr)</span>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -347,9 +450,68 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
                   Lägg till rad
                 </Button>
 
-                <div className="text-right font-medium mt-4 pt-4 border-t">
-                  <div className="text-sm text-muted-foreground">Totalsumma</div>
-                  <div className="text-2xl">{calculateTotal().toLocaleString()} kr</div>
+                <div className="mt-6 pt-4 border-t">
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="font-medium">Delsumma:</div>
+                    <div>{calculateSubtotal(quote.items).toLocaleString()} kr</div>
+                  </div>
+                  
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="flex items-center space-x-2">
+                      <div className="font-medium">Total rabatt:</div>
+                      <Select
+                        value={quote.totalDiscountType || "amount"}
+                        onValueChange={(value: 'percentage' | 'amount') => setQuote({ ...quote, totalDiscountType: value })}
+                      >
+                        <SelectTrigger className="w-[60px]">
+                          <SelectValue>
+                            {quote.totalDiscountType === "percentage" ? <Percent className="h-4 w-4" /> : <Tag className="h-4 w-4" />}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="amount"><div className="flex items-center"><Tag className="h-4 w-4 mr-2" /> kr</div></SelectItem>
+                          <SelectItem value="percentage"><div className="flex items-center"><Percent className="h-4 w-4 mr-2" /> %</div></SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={quote.totalDiscountValue || ""}
+                        onChange={(e) => setQuote({ ...quote, totalDiscountValue: e.target.value ? parseFloat(e.target.value) : undefined })}
+                        placeholder="0"
+                        className="w-[100px]"
+                      />
+                    </div>
+                    <div>
+                      {quote.totalDiscountValue ? (
+                        quote.totalDiscountType === "percentage" 
+                          ? `${(calculateSubtotal(quote.items) * quote.totalDiscountValue / 100).toLocaleString()} kr`
+                          : `${quote.totalDiscountValue.toLocaleString()} kr`
+                      ) : "0 kr"}
+                    </div>
+                  </div>
+                  
+                  {calculateTotalRotDeduction(quote.items) > 0 && (
+                    <div className="flex justify-between items-center mb-2 text-green-600">
+                      <div className="flex items-center">
+                        <CircleCheck className="h-4 w-4 mr-2" />
+                        <div className="font-medium">ROT-avdrag:</div>
+                      </div>
+                      <div>{calculateTotalRotDeduction(quote.items).toLocaleString()} kr</div>
+                    </div>
+                  )}
+                  
+                  <div className="flex justify-between items-center text-xl font-medium mt-2 pt-2 border-t">
+                    <div>Totalsumma:</div>
+                    <div>{calculateDiscountedTotal().toLocaleString()} kr</div>
+                  </div>
+                  
+                  {calculateTotalRotDeduction(quote.items) > 0 && (
+                    <div className="flex justify-between items-center text-sm text-green-600">
+                      <div>Efter ROT-avdrag:</div>
+                      <div>{(calculateDiscountedTotal() - calculateTotalRotDeduction(quote.items)).toLocaleString()} kr</div>
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>

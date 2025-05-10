@@ -17,6 +17,9 @@ export interface QuoteItem {
   quantity: number;
   unit: string;
   price: number;
+  discountType?: 'percentage' | 'amount';
+  discountValue?: number;
+  hasRotDeduction?: boolean;
 }
 
 export interface QuoteRecipient {
@@ -38,4 +41,7 @@ export interface Quote {
   items: QuoteItem[];
   notes?: string;
   terms?: string;
+  totalDiscountType?: 'percentage' | 'amount';
+  totalDiscountValue?: number;
 }
+
