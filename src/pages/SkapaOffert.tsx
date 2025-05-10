@@ -60,11 +60,13 @@ export default function SkapaOffert() {
       {loading ? (
         <div className="text-center py-12">Laddar...</div>
       ) : (
-        <QuoteForm 
-          initialQuote={quote} 
-          businessProfile={businessProfile} 
-          onSave={handleSave}
-        />
+        <div className="overflow-hidden">
+          <QuoteForm 
+            initialQuote={quote} 
+            businessProfile={businessProfile} 
+            onSave={handleSave}
+          />
+        </div>
       )}
     </AppLayout>
   );

@@ -17,7 +17,7 @@ export function MobileHeader({ title }: MobileHeaderProps) {
   }
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-40 h-14 flex items-center justify-between px-4 border-b bg-white">
+    <div className="fixed top-0 left-0 right-0 z-50 h-14 flex items-center justify-between px-4 border-b bg-white">
       <Button 
         variant="ghost" 
         size="icon" 

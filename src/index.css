@@ -102,6 +102,27 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 }
 
+/* Mobile responsiveness for forms */
+@media (max-width: 768px) {
+  .grid.grid-cols-12 {
+    @apply flex flex-col gap-2;
+  }
+  
+  .grid.grid-cols-12 > div {
+    @apply w-full;
+  }
+  
+  input, select, textarea {
+    @apply text-base;
+  }
+  
+  .card-content-scroll {
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
+    padding-bottom: 1rem;
+  }
+}
+
 @media print {
   .no-print {
     display: none;

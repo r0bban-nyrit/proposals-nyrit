@@ -52,7 +52,7 @@ const navItems = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const { state, open } = useSidebar();
+  const { open, state } = useSidebar();
   const isMobile = useIsMobile();
   const currentPath = location.pathname;
   
@@ -75,7 +75,7 @@ export function AppSidebar() {
   return (
     <Sidebar 
       className={`border-r border-gray-200 ${state === "collapsed" ? "w-16" : "w-64"} ${
-        isMobile ? (state === "collapsed" ? "hidden" : "absolute z-40 h-screen bg-white") : "relative"
+        isMobile ? (open ? "fixed inset-0 z-40 h-screen bg-white" : "hidden") : "relative"
       } transition-all duration-300`}
       collapsible={isMobile ? "offcanvas" : "icon"}
     >
