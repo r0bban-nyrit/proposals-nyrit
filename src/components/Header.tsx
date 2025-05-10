@@ -1,0 +1,24 @@
+
+import { useLocation } from "react-router-dom";
+
+interface HeaderProps {
+  title: string;
+  description?: string;
+}
+
+export function Header({ title, description }: HeaderProps) {
+  const location = useLocation();
+  
+  return (
+    <div className="mb-8">
+      <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+        {title}
+      </h1>
+      {description && (
+        <p className="mt-2 text-lg text-muted-foreground">
+          {description}
+        </p>
+      )}
+    </div>
+  );
+}
