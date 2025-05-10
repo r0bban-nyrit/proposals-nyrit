@@ -80,10 +80,8 @@ export function AppSidebar() {
         {state !== "collapsed" && (
           <div className="text-lg font-semibold text-brand-800">OffertPro</div>
         )}
-        <SidebarTrigger asChild>
-          <Button variant="ghost" size="icon" className="ml-auto">
-            <Menu className="h-5 w-5" />
-          </Button>
+        <SidebarTrigger>
+          <Menu className="h-5 w-5" />
         </SidebarTrigger>
       </div>
 
