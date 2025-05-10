@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Quote } from "@/types";
-import { FileText, Send, Check, X } from "lucide-react";
+import { FileText, Send, Check, X, ArrowRight } from "lucide-react";
 import { parseISO, format, isAfter } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -18,6 +18,10 @@ export function QuoteListItem({ quote, onStatusChange }: QuoteListItemProps) {
   const { toast } = useToast();
   
   const handleEdit = () => {
+    navigate(`/skapa-offert/${quote.id}`);
+  };
+  
+  const handleView = () => {
     navigate(`/skapa-offert/${quote.id}`);
   };
   
@@ -110,7 +114,7 @@ export function QuoteListItem({ quote, onStatusChange }: QuoteListItemProps) {
   };
 
   return (
-    <Card>
+    <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
         <div className="flex justify-between items-start">
           <div>
@@ -144,6 +148,11 @@ export function QuoteListItem({ quote, onStatusChange }: QuoteListItemProps) {
         </div>
       </CardContent>
       <CardFooter className="flex gap-2 justify-end border-t px-6 py-4 bg-gray-50">
+        {/* Alltid visa View-knappen oavsett status */}
+        <Button onClick={handleView} variant="outline" size="sm">
+          <ArrowRight className="h-4 w-4 mr-2" /> Visa offert
+        </Button>
+
         {quote.status === "draft" && (
           <>
             <Button onClick={handleEdit} variant="outline" size="sm">
@@ -154,6 +163,7 @@ export function QuoteListItem({ quote, onStatusChange }: QuoteListItemProps) {
             </Button>
           </>
         )}
+        
         {quote.status === "sent" && (
           <>
             <Button onClick={handleReject} variant="outline" size="sm">
@@ -163,11 +173,6 @@ export function QuoteListItem({ quote, onStatusChange }: QuoteListItemProps) {
               <Check className="h-4 w-4 mr-2" /> Acceptera
             </Button>
           </>
-        )}
-        {(quote.status === "accepted" || quote.status === "rejected") && (
-          <Button onClick={handleEdit} variant="outline" size="sm">
-            <FileText className="h-4 w-4 mr-2" /> Visa
-          </Button>
         )}
       </CardFooter>
     </Card>

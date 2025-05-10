@@ -6,13 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Quote } from "@/types";
 import { QuoteListItem } from "@/components/QuoteListItem";
 import { Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export default function Offerter() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("all");
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Load quotes from localStorage
@@ -23,7 +25,15 @@ export default function Offerter() {
     }
     
     setLoading(false);
-  }, []);
+    
+    // Check for URL parameters
+    const params = new URLSearchParams(location.search);
+    const statusParam = params.get("status");
+    
+    if (statusParam) {
+      setActiveTab(statusParam);
+    }
+  }, [location.search]);
 
   const handleStatusChange = (id: string, status: Quote["status"]) => {
     const updatedQuotes = quotes.map(quote => 
@@ -40,6 +50,16 @@ export default function Offerter() {
   const acceptedQuotes = quotes.filter(q => q.status === "accepted");
   const rejectedQuotes = quotes.filter(q => q.status === "rejected");
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    // Update URL to reflect the current tab without refreshing the page
+    if (value === "all") {
+      navigate("/offerter", { replace: true });
+    } else {
+      navigate(`/offerter?status=${value}`, { replace: true });
+    }
+  };
+
   return (
     <AppLayout>
       <div className="flex justify-between items-center mb-6">
@@ -50,7 +70,7 @@ export default function Offerter() {
         </Button>
       </div>
       
-      <Tabs defaultValue="all">
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
         <TabsList>
           <TabsTrigger value="all">Alla ({quotes.length})</TabsTrigger>
           <TabsTrigger value="draft">Utkast ({draftQuotes.length})</TabsTrigger>

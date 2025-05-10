@@ -7,7 +7,7 @@ import { Header } from "@/components/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Quote, BusinessProfile } from "@/types";
 import { QuoteListItem } from "@/components/QuoteListItem";
-import { FileText, Plus, ClipboardList, Settings } from "lucide-react";
+import { FileText, Plus, ClipboardList, Settings, ExternalLink } from "lucide-react";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -55,6 +55,11 @@ export default function Index() {
     localStorage.setItem("quotes", JSON.stringify(updatedQuotes));
   };
 
+  // Navigate to filtered quotes
+  const navigateToFilteredQuotes = (status: Quote["status"]) => {
+    navigate(`/offerter?status=${status}`);
+  };
+
   return (
     <AppLayout>
       <Header 
@@ -64,9 +69,15 @@ export default function Index() {
       
       <div className="grid gap-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
+          <Card 
+            className="cursor-pointer hover:shadow-md transition-shadow" 
+            onClick={() => navigateToFilteredQuotes("draft")}
+          >
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Offertutkast</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-sm font-medium">Offertutkast</CardTitle>
+                <ExternalLink className="h-4 w-4 text-gray-400" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{draftCount}</div>
@@ -76,9 +87,15 @@ export default function Index() {
             </CardContent>
           </Card>
           
-          <Card>
+          <Card 
+            className="cursor-pointer hover:shadow-md transition-shadow" 
+            onClick={() => navigateToFilteredQuotes("sent")}
+          >
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Skickade</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-sm font-medium">Skickade</CardTitle>
+                <ExternalLink className="h-4 w-4 text-gray-400" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{sentCount}</div>
@@ -88,9 +105,15 @@ export default function Index() {
             </CardContent>
           </Card>
           
-          <Card>
+          <Card 
+            className="cursor-pointer hover:shadow-md transition-shadow" 
+            onClick={() => navigateToFilteredQuotes("accepted")}
+          >
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Accepterade</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-sm font-medium">Accepterade</CardTitle>
+                <ExternalLink className="h-4 w-4 text-gray-400" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{acceptedCount}</div>
@@ -116,10 +139,22 @@ export default function Index() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="md:col-span-2">
             <CardHeader>
-              <CardTitle>Senaste offerterna</CardTitle>
-              <CardDescription>
-                De senaste offerterna du har skapat
-              </CardDescription>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle>Senaste offerterna</CardTitle>
+                  <CardDescription>
+                    De senaste offerterna du har skapat
+                  </CardDescription>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate("/offerter")}
+                  className="flex items-center gap-2"
+                >
+                  <span>Visa alla</span>
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               {loading ? (
