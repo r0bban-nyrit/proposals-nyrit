@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@/components/ui/use-toast";
@@ -10,8 +11,6 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import QuotePreview from "./QuotePreview";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Check, Plus, Trash2, Tag, Percent, CircleCheck } from "lucide-react";
 import { format } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -59,16 +58,24 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
     }
   );
 
-  const [openDescDropdown, setOpenDescDropdown] = useState<string | null>(null);
-  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>(serviceDescriptionSuggestions);
+  const [inputValues, setInputValues] = useState<{ [key: string]: string }>(
+    quote.items.reduce((acc, item) => ({ ...acc, [item.id]: item.description }), {})
+  );
+  const [suggestions, setSuggestions] = useState<{ [key: string]: string[] }>(
+    quote.items.reduce((acc, item) => ({ ...acc, [item.id]: [] }), {})
+  );
+  const [showSuggestions, setShowSuggestions] = useState<{ [key: string]: boolean }>(
+    quote.items.reduce((acc, item) => ({ ...acc, [item.id]: false }), {})
+  );
 
   const addItem = () => {
+    const newItemId = uuidv4();
     setQuote({
       ...quote,
       items: [
         ...quote.items,
         {
-          id: uuidv4(),
+          id: newItemId,
           description: "",
           quantity: 1,
           unit: "st",
@@ -76,6 +83,9 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
         },
       ],
     });
+    setInputValues(prev => ({ ...prev, [newItemId]: "" }));
+    setSuggestions(prev => ({ ...prev, [newItemId]: [] }));
+    setShowSuggestions(prev => ({ ...prev, [newItemId]: false }));
   };
 
   const removeItem = (id: string) => {
@@ -92,6 +102,19 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
       ...quote,
       items: quote.items.filter((item) => item.id !== id),
     });
+    
+    // Clean up state for removed item
+    const newInputValues = { ...inputValues };
+    delete newInputValues[id];
+    setInputValues(newInputValues);
+    
+    const newSuggestions = { ...suggestions };
+    delete newSuggestions[id];
+    setSuggestions(newSuggestions);
+    
+    const newShowSuggestions = { ...showSuggestions };
+    delete newShowSuggestions[id];
+    setShowSuggestions(newShowSuggestions);
   };
 
   const updateItem = (id: string, field: keyof QuoteItem, value: string | number | boolean) => {
@@ -102,9 +125,10 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
       ),
     });
 
-    // Update filtered suggestions when description changes
+    // Update input value and filter suggestions when description changes
     if (field === "description" && typeof value === "string") {
-      setFilteredSuggestions(filterSuggestions(value));
+      setInputValues(prev => ({ ...prev, [id]: value }));
+      filterSuggestionsForItem(id, value);
     }
   };
 
@@ -156,17 +180,31 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
     });
   };
 
-  const filterSuggestions = (value: string) => {
-    if (!value) return serviceDescriptionSuggestions;
+  const filterSuggestionsForItem = (itemId: string, value: string) => {
+    if (!value) {
+      setSuggestions(prev => ({ ...prev, [itemId]: [] }));
+      setShowSuggestions(prev => ({ ...prev, [itemId]: false }));
+      return;
+    }
     
-    return serviceDescriptionSuggestions.filter((suggestion) =>
-      suggestion.toLowerCase().includes(value.toLowerCase())
+    const filtered = serviceDescriptionSuggestions.filter(
+      suggestion => suggestion.toLowerCase().includes(value.toLowerCase())
     );
+    
+    setSuggestions(prev => ({ ...prev, [itemId]: filtered }));
+    setShowSuggestions(prev => ({ ...prev, [itemId]: filtered.length > 0 }));
   };
 
   const handleDescriptionSelect = (itemId: string, description: string) => {
     updateItem(itemId, "description", description);
-    setOpenDescDropdown(null);
+    setInputValues(prev => ({ ...prev, [itemId]: description }));
+    setShowSuggestions(prev => ({ ...prev, [itemId]: false }));
+  };
+
+  const handleDescriptionInputChange = (itemId: string, value: string) => {
+    setInputValues(prev => ({ ...prev, [itemId]: value }));
+    updateItem(itemId, "description", value);
+    filterSuggestionsForItem(itemId, value);
   };
 
   const calculateItemSubtotal = (item: QuoteItem): number => {
@@ -326,64 +364,36 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
                 {quote.items.map((item) => (
                   <div key={item.id} className="grid grid-cols-12 gap-4 items-center">
                     <div className="col-span-4 sm:col-span-5">
-                      <Popover 
-                        open={openDescDropdown === item.id} 
-                        onOpenChange={(open) => {
-                          if (!open) {
-                            setOpenDescDropdown(null);
-                          }
-                        }}
-                      >
-                        <PopoverTrigger asChild>
-                          <div className="w-full">
-                            <Input
-                              value={item.description}
-                              onChange={(e) => {
-                                updateItem(item.id, "description", e.target.value);
-                                setFilteredSuggestions(filterSuggestions(e.target.value));
-                                // Only open dropdown if we have suggestions and user is typing
-                                if (e.target.value) {
-                                  setOpenDescDropdown(item.id);
-                                }
-                              }}
-                              onFocus={() => {
-                                if (item.description) {
-                                  setFilteredSuggestions(filterSuggestions(item.description));
-                                  setOpenDescDropdown(item.id);
-                                }
-                              }}
-                              placeholder="Beskrivning av vara/tjänst"
-                              required
-                              className="w-full"
-                            />
-                          </div>
-                        </PopoverTrigger>
-                        <PopoverContent className="p-0 w-[300px]" align="start">
-                          <div className="max-h-[200px] overflow-y-auto">
-                            {filteredSuggestions.length === 0 ? (
-                              <div className="p-4 text-sm text-gray-500">Inga förslag hittades.</div>
-                            ) : (
-                              <div className="py-2">
-                                {filteredSuggestions.map((suggestion) => (
-                                  <div
-                                    key={suggestion}
-                                    onClick={() => handleDescriptionSelect(item.id, suggestion)}
-                                    className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 flex items-center justify-between ${
-                                      suggestion === item.description ? 'bg-gray-50' : ''
-                                    }`}
-                                  >
-                                    {suggestion}
-                                    {suggestion === item.description && (
-                                      <Check className="h-4 w-4" />
-                                    )}
-                                  </div>
-                                ))}
+                      <div className="relative w-full">
+                        <Input
+                          value={inputValues[item.id] || ''}
+                          onChange={(e) => handleDescriptionInputChange(item.id, e.target.value)}
+                          onFocus={() => filterSuggestionsForItem(item.id, inputValues[item.id] || '')}
+                          placeholder="Beskrivning av vara/tjänst"
+                          required
+                          className="w-full"
+                        />
+                        {showSuggestions[item.id] && suggestions[item.id]?.length > 0 && (
+                          <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-[200px] overflow-y-auto">
+                            {suggestions[item.id].map((suggestion) => (
+                              <div
+                                key={suggestion}
+                                onClick={() => handleDescriptionSelect(item.id, suggestion)}
+                                className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 flex items-center justify-between ${
+                                  suggestion === inputValues[item.id] ? 'bg-gray-50' : ''
+                                }`}
+                              >
+                                {suggestion}
+                                {suggestion === inputValues[item.id] && (
+                                  <Check className="h-4 w-4" />
+                                )}
                               </div>
-                            )}
+                            ))}
                           </div>
-                        </PopoverContent>
-                      </Popover>
+                        )}
+                      </div>
                     </div>
+                    
                     <div className="col-span-2 sm:col-span-1">
                       <Input
                         type="number"
