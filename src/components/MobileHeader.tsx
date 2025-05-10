@@ -9,7 +9,7 @@ interface MobileHeaderProps {
 }
 
 export function MobileHeader({ title }: MobileHeaderProps) {
-  const { state, open, setOpen } = useSidebar();
+  const { open, setOpen } = useSidebar();
   const isMobile = useIsMobile();
 
   if (!isMobile) {

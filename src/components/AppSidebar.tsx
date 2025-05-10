@@ -52,7 +52,7 @@ const navItems = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const { state } = useSidebar();
+  const { state, open } = useSidebar();
   const isMobile = useIsMobile();
   const currentPath = location.pathname;
   
