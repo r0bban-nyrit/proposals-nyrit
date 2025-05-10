@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@/components/ui/use-toast";
@@ -61,6 +60,7 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
   );
 
   const [openDescDropdown, setOpenDescDropdown] = useState<string | null>(null);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>(serviceDescriptionSuggestions);
 
   const addItem = () => {
     setQuote({
@@ -101,6 +101,11 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
         item.id === id ? { ...item, [field]: value } : item
       ),
     });
+
+    // Update filtered suggestions when description changes
+    if (field === "description" && typeof value === "string") {
+      setFilteredSuggestions(filterSuggestions(value));
+    }
   };
 
   const updateRecipient = (field: keyof QuoteRecipient, value: string) => {
@@ -321,49 +326,61 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
                 {quote.items.map((item) => (
                   <div key={item.id} className="grid grid-cols-12 gap-4 items-center">
                     <div className="col-span-4 sm:col-span-5">
-                      <Popover open={openDescDropdown === item.id} onOpenChange={(open) => {
-                        if (open) {
-                          setOpenDescDropdown(item.id);
-                        } else {
-                          setOpenDescDropdown(null);
-                        }
-                      }}>
+                      <Popover 
+                        open={openDescDropdown === item.id} 
+                        onOpenChange={(open) => {
+                          if (!open) {
+                            setOpenDescDropdown(null);
+                          }
+                        }}
+                      >
                         <PopoverTrigger asChild>
-                          <div>
+                          <div className="w-full">
                             <Input
                               value={item.description}
                               onChange={(e) => {
                                 updateItem(item.id, "description", e.target.value);
-                                // Open the dropdown when user starts typing
-                                if (e.target.value && !openDescDropdown) {
+                                setFilteredSuggestions(filterSuggestions(e.target.value));
+                                // Only open dropdown if we have suggestions and user is typing
+                                if (e.target.value) {
+                                  setOpenDescDropdown(item.id);
+                                }
+                              }}
+                              onFocus={() => {
+                                if (item.description) {
+                                  setFilteredSuggestions(filterSuggestions(item.description));
                                   setOpenDescDropdown(item.id);
                                 }
                               }}
                               placeholder="Beskrivning av vara/tjänst"
                               required
+                              className="w-full"
                             />
                           </div>
                         </PopoverTrigger>
-                        <PopoverContent className="p-0" align="start">
-                          <Command>
-                            <CommandInput placeholder="Sök efter tjänster..." />
-                            <CommandList>
-                              <CommandEmpty>Inga förslag hittades.</CommandEmpty>
-                              <CommandGroup>
-                                {filterSuggestions(item.description).map((suggestion) => (
-                                  <CommandItem 
+                        <PopoverContent className="p-0 w-[300px]" align="start">
+                          <div className="max-h-[200px] overflow-y-auto">
+                            {filteredSuggestions.length === 0 ? (
+                              <div className="p-4 text-sm text-gray-500">Inga förslag hittades.</div>
+                            ) : (
+                              <div className="py-2">
+                                {filteredSuggestions.map((suggestion) => (
+                                  <div
                                     key={suggestion}
-                                    onSelect={() => handleDescriptionSelect(item.id, suggestion)}
+                                    onClick={() => handleDescriptionSelect(item.id, suggestion)}
+                                    className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 flex items-center justify-between ${
+                                      suggestion === item.description ? 'bg-gray-50' : ''
+                                    }`}
                                   >
                                     {suggestion}
                                     {suggestion === item.description && (
-                                      <Check className="ml-auto h-4 w-4" />
+                                      <Check className="h-4 w-4" />
                                     )}
-                                  </CommandItem>
+                                  </div>
                                 ))}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
+                              </div>
+                            )}
+                          </div>
                         </PopoverContent>
                       </Popover>
                     </div>
