@@ -9,7 +9,7 @@ interface MobileHeaderProps {
 }
 
 export function MobileHeader({ title }: MobileHeaderProps) {
-  const { state, setState } = useSidebar();
+  const { state, open, setOpen } = useSidebar();
   const isMobile = useIsMobile();
 
   if (!isMobile) {
@@ -21,7 +21,7 @@ export function MobileHeader({ title }: MobileHeaderProps) {
       <Button 
         variant="ghost" 
         size="icon" 
-        onClick={() => setState(state === "collapsed" ? "expanded" : "collapsed")}
+        onClick={() => setOpen(!open)}
       >
         <Menu className="h-5 w-5" />
       </Button>

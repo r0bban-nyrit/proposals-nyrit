@@ -77,7 +77,7 @@ export function AppSidebar() {
       className={`border-r border-gray-200 ${state === "collapsed" ? "w-16" : "w-64"} ${
         isMobile ? (state === "collapsed" ? "hidden" : "absolute z-40 h-screen bg-white") : "relative"
       } transition-all duration-300`}
-      collapsible={isMobile ? "full" : "icon"}
+      collapsible={isMobile ? "offcanvas" : "icon"}
     >
       <div className="flex h-14 items-center justify-between px-4">
         {state !== "collapsed" && (
@@ -89,7 +89,7 @@ export function AppSidebar() {
       </div>
 
       <SidebarContent className="px-2">
-        <SidebarGroup defaultOpen={isGroupExpanded}>
+        <SidebarGroup>
           <SidebarGroupLabel className={state === "collapsed" ? "sr-only" : ""}>
             Meny
           </SidebarGroupLabel>

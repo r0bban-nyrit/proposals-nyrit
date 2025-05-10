@@ -11,6 +11,7 @@ export default function SkapaOffert() {
   const [quote, setQuote] = useState<Quote | undefined>(undefined);
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile | undefined>(undefined);
   const [loading, setLoading] = useState(true);
+  const title = id ? "Redigera offert" : "Skapa ny offert";
 
   useEffect(() => {
     // Load business profile
@@ -50,9 +51,9 @@ export default function SkapaOffert() {
   };
 
   return (
-    <AppLayout>
+    <AppLayout title={title}>
       <Header 
-        title={id ? "Redigera offert" : "Skapa ny offert"} 
+        title={title} 
         description={id ? "Uppdatera en befintlig offert" : "Skapa en ny offert för en kund"} 
       />
       
