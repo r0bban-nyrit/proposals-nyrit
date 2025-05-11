@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
-  "homepage": "https://r0bban-nyrit.github.io/proposals-nyrit"
+  "homepage": "https://r0bban-nyrit.github.io/proposals-nyrit",
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",
