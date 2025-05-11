@@ -25,7 +25,7 @@ jobs:
       - name: Vite Github Pages Deployer
         uses: skywarth/vite-github-pages-deployer@v1.5.0
         with:
-          public_base_path: / # Set the base path to match your GitHub Pages repository name
+          public_base_path: /proposals-nyrit/ # Set the base path to match your GitHub Pages repository name
           build_path: ./dist # Specify the build output directory
           install_phase_node_env: dev # Use the dev environment for dependency installation
           build_phase_node_env: production # Use the production environment for building
