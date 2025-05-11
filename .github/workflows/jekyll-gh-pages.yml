@@ -1,0 +1,35 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write # Required for authentication
+  contents: write # Required to push to the gh-pages branch
+  pages: write    # Required to create a GitHub Pages deployment
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18 # Use Node.js 18 or higher
+
+      - name: Vite Github Pages Deployer
+        uses: skywarth/vite-github-pages-deployer@v1.5.0
+        with:
+          public_base_path: / # Set the base path to match your GitHub Pages repository name
+          build_path: ./dist # Specify the build output directory
+          install_phase_node_env: dev # Use the dev environment for dependency installation
+          build_phase_node_env: production # Use the production environment for building
+          package_manager: npm # Use npm as the package manager
+          artifact_name: github-pages # Name the deployment artifact
+          debug_mode: false # Turn off debug mode
+          working_path: ./ # Set the working directory
