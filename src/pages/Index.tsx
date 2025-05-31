@@ -7,7 +7,8 @@ import { Header } from "@/components/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Quote, BusinessProfile } from "@/types";
 import { QuoteListItem } from "@/components/QuoteListItem";
-import { FileText, Plus, ClipboardList, Settings, ExternalLink } from "lucide-react";
+import { FloatingActionButton } from "@/components/FloatingActionButton";
+import { ExternalLink } from "lucide-react";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -136,79 +137,46 @@ export default function Index() {
           </Card>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                <div>
-                  <CardTitle>Senaste offerterna</CardTitle>
-                  <CardDescription>
-                    De senaste offerterna du har skapat
-                  </CardDescription>
-                </div>
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate("/offerter")}
-                  className="flex items-center gap-2 w-full sm:w-auto"
-                >
-                  <span>Visa alla</span>
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
+        <Card>
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+              <div>
+                <CardTitle>Senaste offerterna</CardTitle>
+                <CardDescription>
+                  De senaste offerterna du har skapat
+                </CardDescription>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {loading ? (
-                <div className="text-center py-8">Laddar...</div>
-              ) : recentQuotes.length > 0 ? (
-                recentQuotes.map(quote => (
-                  <QuoteListItem 
-                    key={quote.id} 
-                    quote={quote} 
-                    onStatusChange={handleStatusChange}
-                  />
-                ))
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  Inga offerter skapade än
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Snabbåtgärder</CardTitle>
-              <CardDescription>
-                Vanliga uppgifter du kanske vill utföra
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
               <Button 
-                className="w-full justify-start" 
-                onClick={() => navigate("/skapa-offert")}
-              >
-                <Plus className="h-4 w-4 mr-2" /> Skapa ny offert
-              </Button>
-              
-              <Button 
-                className="w-full justify-start" 
                 variant="outline" 
                 onClick={() => navigate("/offerter")}
+                className="flex items-center gap-2 w-full sm:w-auto"
               >
-                <ClipboardList className="h-4 w-4 mr-2" /> Visa alla offerter
+                <span>Visa alla</span>
+                <ExternalLink className="h-4 w-4" />
               </Button>
-              
-              <Button 
-                className="w-full justify-start" 
-                variant="outline" 
-                onClick={() => navigate("/profil")}
-              >
-                <Settings className="h-4 w-4 mr-2" /> Redigera företagsprofil
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {loading ? (
+              <div className="text-center py-8">Laddar...</div>
+            ) : recentQuotes.length > 0 ? (
+              recentQuotes.map(quote => (
+                <QuoteListItem 
+                  key={quote.id} 
+                  quote={quote} 
+                  onStatusChange={handleStatusChange}
+                />
+              ))
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                Inga offerter skapade än
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
+      
+      <FloatingActionButton />
     </AppLayout>
   );
 }
