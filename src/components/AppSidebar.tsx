@@ -20,7 +20,6 @@ import {
   SidebarTrigger,
   useSidebar
 } from "@/components/ui/sidebar";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const navItems = [
   { 
@@ -52,8 +51,7 @@ const navItems = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const { open, state } = useSidebar();
-  const isMobile = useIsMobile();
+  const { state, setOpenMobile } = useSidebar();
   const currentPath = location.pathname;
   
   // Helper functions
@@ -70,10 +68,15 @@ export function AppSidebar() {
     }`;
   };
 
+  const handleNavClick = () => {
+    // Close mobile sidebar when a nav item is clicked
+    setOpenMobile(false);
+  };
+
   return (
     <Sidebar 
       className="border-r border-gray-200"
-      collapsible={isMobile ? "offcanvas" : "icon"}
+      collapsible="offcanvas"
     >
       <div className="flex h-14 items-center justify-between px-4 border-b">
         {state !== "collapsed" && (
@@ -97,6 +100,7 @@ export function AppSidebar() {
                     <NavLink
                       to={item.path}
                       className={() => getNavClass(isActive(item.path))}
+                      onClick={handleNavClick}
                     >
                       <item.icon className="h-5 w-5" />
                       {state !== "collapsed" && <span>{item.title}</span>}

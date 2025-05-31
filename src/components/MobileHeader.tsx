@@ -9,7 +9,7 @@ interface MobileHeaderProps {
 }
 
 export function MobileHeader({ title }: MobileHeaderProps) {
-  const { open, setOpen } = useSidebar();
+  const { openMobile, setOpenMobile } = useSidebar();
   const isMobile = useIsMobile();
 
   if (!isMobile) {
@@ -21,12 +21,12 @@ export function MobileHeader({ title }: MobileHeaderProps) {
       <Button 
         variant="ghost" 
         size="icon" 
-        onClick={() => setOpen(!open)}
+        onClick={() => setOpenMobile(!openMobile)}
       >
         <Menu className="h-5 w-5" />
       </Button>
       <div className="font-semibold text-lg">{title}</div>
-      <div className="w-10"></div> {/* Placeholder for right-side balance */}
+      <div className="w-10"></div>
     </div>
   );
 }
