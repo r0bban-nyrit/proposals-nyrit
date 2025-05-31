@@ -62,8 +62,6 @@ export function AppSidebar() {
     return currentPath.startsWith(path);
   };
   
-  const isGroupExpanded = navItems.some(item => isActive(item.path));
-  
   const getNavClass = (isItemActive: boolean) => {
     return `flex items-center gap-2 w-full px-3 py-2 rounded-md transition-colors ${
       isItemActive 
@@ -74,12 +72,10 @@ export function AppSidebar() {
 
   return (
     <Sidebar 
-      className={`border-r border-gray-200 ${state === "collapsed" ? "w-16" : "w-64"} ${
-        isMobile ? (open ? "fixed inset-0 z-40 h-screen bg-white" : "hidden") : "relative"
-      } transition-all duration-300`}
+      className="border-r border-gray-200"
       collapsible={isMobile ? "offcanvas" : "icon"}
     >
-      <div className="flex h-14 items-center justify-between px-4">
+      <div className="flex h-14 items-center justify-between px-4 border-b">
         {state !== "collapsed" && (
           <div className="text-lg font-semibold text-brand-800">OffertPro</div>
         )}

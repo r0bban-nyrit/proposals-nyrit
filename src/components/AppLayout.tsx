@@ -14,14 +14,16 @@ export function AppLayout({ children, title = "OffertPro" }: AppLayoutProps) {
   
   return (
     <SidebarProvider defaultOpen={!isMobile}>
-      <div className="flex min-h-screen w-full flex-col md:flex-row">
+      <div className="min-h-screen w-full flex">
         <AppSidebar />
-        <MobileHeader title={title} />
-        <main className="flex-1 overflow-x-hidden bg-background pt-14 md:pt-0">
-          <div className="container py-4 md:py-6 px-2 md:px-6 max-w-full md:max-w-7xl">
-            {children}
-          </div>
-        </main>
+        <div className="flex-1 flex flex-col">
+          <MobileHeader title={title} />
+          <main className="flex-1 overflow-x-hidden bg-background pt-14 md:pt-0">
+            <div className="container py-4 md:py-6 px-2 md:px-6 max-w-full md:max-w-7xl">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
     </SidebarProvider>
   );
