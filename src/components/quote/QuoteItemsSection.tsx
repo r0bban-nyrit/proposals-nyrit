@@ -1,9 +1,11 @@
+
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Quote, QuoteItem } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2, Tag, Percent, CircleCheck, AlertTriangle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -119,10 +121,18 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
   };
 
   const handleNumberInputFocus = (event: React.FocusEvent<HTMLInputElement>) => {
-    // Select all text when focusing on zero values
-    if (event.target.value === "0") {
+    // Select all text when focusing on zero values or empty values
+    if (event.target.value === "0" || event.target.value === "") {
       event.target.select();
     }
+  };
+
+  const isQuantityInvalid = (quantity: number | string): boolean => {
+    return quantity === 0 || quantity === "" || isNaN(Number(quantity));
+  };
+
+  const isPriceInvalid = (price: number | string): boolean => {
+    return price === 0 || price === "" || isNaN(Number(price));
   };
 
   const calculateItemSubtotal = (item: QuoteItem): number => {
@@ -149,17 +159,18 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
           </div>
           
           {quote.items.map((item) => (
-            <div key={item.id} className="md:grid grid-cols-12 gap-4 items-center flex flex-col space-y-2 md:space-y-0 border-b pb-4 md:border-0 md:pb-0">
+            <div key={item.id} className="md:grid grid-cols-12 gap-4 items-start flex flex-col space-y-2 md:space-y-0 border-b pb-4 md:border-0 md:pb-0">
               <div className="md:col-span-5 w-full">
                 <div className="md:hidden mb-1 font-medium text-sm">Beskrivning</div>
                 <div className="relative w-full">
-                  <Input
+                  <Textarea
                     value={inputValues[item.id] || ''}
                     onChange={(e) => handleDescriptionInputChange(item.id, e.target.value)}
                     onFocus={() => filterSuggestionsForItem(item.id, inputValues[item.id] || '')}
                     placeholder="Beskrivning av vara/tjänst"
                     required
-                    className="w-full text-base md:text-sm"
+                    className="w-full text-base md:text-sm min-h-[40px] resize-none"
+                    rows={1}
                   />
                   {showSuggestions[item.id] && suggestions[item.id]?.length > 0 && (
                     <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-[200px] overflow-y-auto">
@@ -185,12 +196,12 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                   <Input
                     type="number"
                     min="1"
-                    value={item.quantity}
-                    onChange={(e) => updateItem(item.id, "quantity", parseFloat(e.target.value))}
+                    value={item.quantity || ""}
+                    onChange={(e) => updateItem(item.id, "quantity", parseFloat(e.target.value) || 0)}
                     onFocus={handleNumberInputFocus}
                     className="text-base md:text-sm pr-8"
                   />
-                  {item.quantity === 0 && (
+                  {isQuantityInvalid(item.quantity) && (
                     <AlertTriangle className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-500" />
                   )}
                 </div>
@@ -198,7 +209,7 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
               <div className="md:col-span-1 w-full">
                 <div className="md:hidden mb-1 font-medium text-sm">Enhet</div>
                 <Input
-                  value={item.unit}
+                  value={item.unit || ""}
                   onChange={(e) => updateItem(item.id, "unit", e.target.value)}
                   className="text-base md:text-sm"
                 />
@@ -209,12 +220,12 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                   <Input
                     type="number"
                     min="0"
-                    value={item.price}
-                    onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value))}
+                    value={item.price || ""}
+                    onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
                     onFocus={handleNumberInputFocus}
                     className="text-base md:text-sm pr-8"
                   />
-                  {item.price === 0 && (
+                  {isPriceInvalid(item.price) && (
                     <AlertTriangle className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-500" />
                   )}
                 </div>
@@ -246,7 +257,7 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                   />
                 </div>
               </div>
-              <div className="md:col-span-1 flex items-center w-full">
+              <div className="md:col-span-1 flex items-center w-full pt-2 md:pt-0">
                 <div className="md:hidden mr-2 font-medium text-sm">ROT-avdrag</div>
                 <Checkbox
                   checked={item.hasRotDeduction}
