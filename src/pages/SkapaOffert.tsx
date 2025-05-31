@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { AppLayout } from "@/components/AppLayout";
 import { Header } from "@/components/Header";
 import QuoteForm from "@/components/QuoteForm";
@@ -8,10 +8,21 @@ import { BusinessProfile, Quote } from "@/types";
 
 export default function SkapaOffert() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const isReadonly = searchParams.get("readonly") === "true";
   const [quote, setQuote] = useState<Quote | undefined>(undefined);
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile | undefined>(undefined);
   const [loading, setLoading] = useState(true);
-  const title = id ? "Redigera offert" : "Skapa ny offert";
+  
+  const getTitle = () => {
+    if (isReadonly) return "Visa offert";
+    return id ? "Redigera offert" : "Skapa ny offert";
+  };
+  
+  const getDescription = () => {
+    if (isReadonly) return "Visa offertdetaljer";
+    return id ? "Uppdatera en befintlig offert" : "Skapa en ny offert för en kund";
+  };
 
   useEffect(() => {
     // Load business profile
@@ -36,6 +47,9 @@ export default function SkapaOffert() {
   }, [id]);
 
   const handleSave = (savedQuote: Quote) => {
+    // Don't allow saving in readonly mode
+    if (isReadonly) return;
+    
     // Save the updated or new quote to localStorage
     const quotesData = localStorage.getItem("quotes");
     let quotes: Quote[] = quotesData ? JSON.parse(quotesData) : [];
@@ -51,10 +65,10 @@ export default function SkapaOffert() {
   };
 
   return (
-    <AppLayout title={title}>
+    <AppLayout title={getTitle()}>
       <Header 
-        title={title} 
-        description={id ? "Uppdatera en befintlig offert" : "Skapa en ny offert för en kund"} 
+        title={getTitle()} 
+        description={getDescription()} 
       />
       
       {loading ? (
@@ -65,6 +79,7 @@ export default function SkapaOffert() {
             initialQuote={quote} 
             businessProfile={businessProfile} 
             onSave={handleSave}
+            readonly={isReadonly}
           />
         </div>
       )}

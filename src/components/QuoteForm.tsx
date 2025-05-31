@@ -16,9 +16,10 @@ interface QuoteFormProps {
   initialQuote?: Quote;
   businessProfile?: BusinessProfile;
   onSave?: (quote: Quote) => void;
+  readonly?: boolean;
 }
 
-export default function QuoteForm({ initialQuote, businessProfile, onSave }: QuoteFormProps) {
+export default function QuoteForm({ initialQuote, businessProfile, onSave, readonly = false }: QuoteFormProps) {
   const { toast } = useToast();
   const today = new Date();
   const monthLater = new Date(today);
@@ -54,6 +55,8 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
   );
 
   const handleSendQuote = () => {
+    if (readonly) return;
+    
     const updatedQuote = { ...quote, status: "sent" as const };
     
     // Here you would normally send the quote via email or other means
@@ -76,6 +79,8 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
   };
 
   const handleSave = (saveQuote: Quote = quote) => {
+    if (readonly) return;
+    
     if (onSave) {
       onSave(saveQuote);
     }
@@ -85,6 +90,21 @@ export default function QuoteForm({ initialQuote, businessProfile, onSave }: Quo
     const updatedQuotes = [...quotes.filter((q: Quote) => q.id !== saveQuote.id), saveQuote];
     localStorage.setItem("quotes", JSON.stringify(updatedQuotes));
   };
+
+  // If readonly, only show preview tab
+  if (readonly) {
+    return (
+      <div className="w-full">
+        <QuotePreview quote={quote} businessProfile={businessProfile} />
+        
+        <div className="mt-4 flex flex-col md:flex-row gap-4 justify-end">
+          <Button variant="outline" onClick={() => window.print()} className="w-full md:w-auto">
+            Skriv ut / Spara PDF
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Tabs defaultValue="editor" className="w-full">

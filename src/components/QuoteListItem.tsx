@@ -1,9 +1,8 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Quote } from "@/types";
-import { FileText, Send, Check, X, ArrowRight } from "lucide-react";
+import { FileText, Send, Check, X, ArrowRight, Eye } from "lucide-react";
 import { parseISO, format, isAfter } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -22,7 +21,7 @@ export function QuoteListItem({ quote, onStatusChange }: QuoteListItemProps) {
   };
   
   const handleView = () => {
-    navigate(`/skapa-offert/${quote.id}`);
+    navigate(`/skapa-offert/${quote.id}?readonly=true`);
   };
   
   const handleSend = () => {
@@ -136,6 +135,8 @@ export function QuoteListItem({ quote, onStatusChange }: QuoteListItemProps) {
     }
   };
 
+  const isEditable = quote.status === "draft";
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
@@ -176,10 +177,16 @@ export function QuoteListItem({ quote, onStatusChange }: QuoteListItemProps) {
         </div>
       </CardContent>
       <CardFooter className="flex gap-2 justify-end border-t px-6 py-4 bg-gray-50">
-        {/* Alltid visa View-knappen oavsett status */}
-        <Button onClick={handleView} variant="outline" size="sm">
-          <ArrowRight className="h-4 w-4 mr-2" /> Visa offert
-        </Button>
+        {/* Visa knapp - för icke-redigerbara offerter blir det en "visa" knapp */}
+        {!isEditable ? (
+          <Button onClick={handleView} variant="outline" size="sm">
+            <Eye className="h-4 w-4 mr-2" /> Visa offert
+          </Button>
+        ) : (
+          <Button onClick={handleEdit} variant="outline" size="sm">
+            <ArrowRight className="h-4 w-4 mr-2" /> Visa offert
+          </Button>
+        )}
 
         {quote.status === "draft" && (
           <>
