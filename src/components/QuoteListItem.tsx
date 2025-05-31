@@ -1,3 +1,4 @@
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -75,11 +76,11 @@ export function QuoteListItem({ quote, onStatusChange }: QuoteListItemProps) {
     
     switch (quote.status) {
       case "draft":
-        return "outline"; // Gray
+        return "outline";
       case "sent":
-        return "default"; // Blue (using primary color)
+        return "default";
       case "accepted":
-        return "secondary"; // We'll need to customize this for green
+        return "secondary";
       case "rejected":
         return "destructive";
       case "expired":
@@ -98,11 +99,11 @@ export function QuoteListItem({ quote, onStatusChange }: QuoteListItemProps) {
     
     switch (quote.status) {
       case "draft":
-        return "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200";
+        return "bg-gray-100 text-gray-800 border-gray-400 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-700";
       case "sent":
-        return "bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200";
+        return "bg-blue-100 text-blue-800 border-blue-400 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-600 dark:hover:bg-blue-800";
       case "accepted":
-        return "bg-green-100 text-green-700 border-green-300 hover:bg-green-200";
+        return "bg-green-100 text-green-800 border-green-400 hover:bg-green-200 dark:bg-green-900 dark:text-green-200 dark:border-green-600 dark:hover:bg-green-800";
       case "rejected":
         return "";
       case "expired":
@@ -142,8 +143,8 @@ export function QuoteListItem({ quote, onStatusChange }: QuoteListItemProps) {
       <CardContent className="p-6">
         <div className="flex justify-between items-start">
           <div>
-            <div className="font-semibold text-lg">{quote.title}</div>
-            <div className="text-sm text-gray-500">
+            <div className="font-semibold text-lg text-foreground">{quote.title}</div>
+            <div className="text-sm text-muted-foreground">
               #{quote.number} | {formatDate(quote.createdAt)}
             </div>
             <div className="mt-2">
@@ -156,27 +157,27 @@ export function QuoteListItem({ quote, onStatusChange }: QuoteListItemProps) {
             </div>
           </div>
           <div className="text-right">
-            <div className="text-sm text-gray-500">Kund</div>
-            <div>{quote.recipient.name}</div>
+            <div className="text-sm text-muted-foreground">Kund</div>
+            <div className="text-foreground">{quote.recipient.name}</div>
             {quote.recipient.companyName && (
-              <div className="text-sm text-gray-500">{quote.recipient.companyName}</div>
+              <div className="text-sm text-muted-foreground">{quote.recipient.companyName}</div>
             )}
           </div>
         </div>
         <div className="mt-4 flex justify-between items-end">
           <div>
-            <div className="text-sm text-gray-500">Giltig till</div>
-            <div>{formatDate(quote.validUntil)}</div>
+            <div className="text-sm text-muted-foreground">Giltig till</div>
+            <div className="text-foreground">{formatDate(quote.validUntil)}</div>
           </div>
           <div className="text-right">
-            <div className="text-sm text-gray-500">Totalt</div>
-            <div className="font-semibold text-lg">
+            <div className="text-sm text-muted-foreground">Totalt</div>
+            <div className="font-semibold text-lg text-foreground">
               {calculateTotal().toLocaleString()} kr
             </div>
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex gap-2 justify-end border-t px-6 py-4 bg-gray-50">
+      <CardFooter className="flex gap-2 justify-end border-t px-6 py-4 bg-muted/30">
         {/* Visa knapp - för icke-redigerbara offerter blir det en "visa" knapp */}
         {!isEditable ? (
           <Button onClick={handleView} variant="outline" size="sm">

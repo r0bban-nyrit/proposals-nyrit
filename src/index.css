@@ -23,7 +23,7 @@
     --secondary-foreground: 220 9% 25%;
 
     --muted: 220 14% 91%;
-    --muted-foreground: 220 9% 46%;
+    --muted-foreground: 220 9% 40%;
 
     --accent: 220 14% 88%;
     --accent-foreground: 220 9% 25%;
@@ -64,7 +64,7 @@
     --secondary-foreground: 220 14% 85%;
 
     --muted: 220 15% 15%;
-    --muted-foreground: 220 9% 60%;
+    --muted-foreground: 220 9% 70%;
 
     --accent: 220 15% 18%;
     --accent-foreground: 220 14% 85%;
@@ -99,8 +99,9 @@
 
 .quote-paper {
   background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Mobile responsiveness for forms */
@@ -131,5 +132,7 @@
   
   .quote-paper {
     box-shadow: none;
+    background-color: white !important;
+    color: black !important;
   }
 }

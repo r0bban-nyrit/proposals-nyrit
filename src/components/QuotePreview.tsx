@@ -29,11 +29,11 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
   };
 
   return (
-    <div className="quote-paper px-8 py-10 bg-white rounded-lg shadow-md">
+    <div className="quote-paper px-8 py-10 bg-card text-card-foreground rounded-lg shadow-md">
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold">{quote.title || "Offert"}</h1>
-          <div className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold text-card-foreground">{quote.title || "Offert"}</h1>
+          <div className="mt-2 text-muted-foreground">
             <div>Offertnummer: {quote.number}</div>
             <div>Datum: {formatDate(quote.createdAt)}</div>
             <div>Giltig till: {formatDate(quote.validUntil)}</div>
@@ -50,9 +50,9 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
         <div>
-          <h2 className="font-semibold text-gray-800 mb-2">Från:</h2>
+          <h2 className="font-semibold text-card-foreground mb-2">Från:</h2>
           {businessProfile ? (
-            <div>
+            <div className="text-card-foreground">
               <div className="font-bold">{businessProfile.companyName}</div>
               <div>Org.nr: {businessProfile.organizationNumber}</div>
               <div>{businessProfile.address}</div>
@@ -62,15 +62,15 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
               {businessProfile.website && <div>{businessProfile.website}</div>}
             </div>
           ) : (
-            <div className="text-gray-500 italic">
+            <div className="text-muted-foreground italic">
               Din företagsinformation kommer att visas här
             </div>
           )}
         </div>
         
         <div>
-          <h2 className="font-semibold text-gray-800 mb-2">Till:</h2>
-          <div>
+          <h2 className="font-semibold text-card-foreground mb-2">Till:</h2>
+          <div className="text-card-foreground">
             <div className="font-bold">{quote.recipient.name}</div>
             {quote.recipient.companyName && (
               <div>{quote.recipient.companyName}</div>
@@ -87,9 +87,9 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
       </div>
 
       <div className="mt-12">
-        <table className="w-full">
+        <table className="w-full text-card-foreground">
           <thead>
-            <tr className="border-b border-gray-300">
+            <tr className="border-b border-border">
               <th className="py-2 text-left">Beskrivning</th>
               <th className="py-2 text-right">Antal</th>
               <th className="py-2 text-left pl-4">Enhet</th>
@@ -101,7 +101,7 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
           </thead>
           <tbody>
             {quote.items.map((item) => (
-              <tr key={item.id} className="border-b border-gray-100">
+              <tr key={item.id} className="border-b border-border/50">
                 <td className="py-3">{item.description}</td>
                 <td className="py-3 text-right">{item.quantity}</td>
                 <td className="py-3 text-left pl-4">{item.unit}</td>
@@ -141,8 +141,8 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
             
             <tr>
               <td colSpan={5}></td>
-              <td className="pt-2 font-semibold text-right border-t border-gray-300">Totalt:</td>
-              <td className="pt-2 font-semibold text-right border-t border-gray-300">
+              <td className="pt-2 font-semibold text-right border-t border-border">Totalt:</td>
+              <td className="pt-2 font-semibold text-right border-t border-border">
                 {calculateTotal(quote.items, quote.totalDiscountType, quote.totalDiscountValue).toLocaleString()} kr
               </td>
             </tr>
@@ -151,17 +151,17 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
               <>
                 <tr>
                   <td colSpan={5}></td>
-                  <td className="py-1 text-right text-green-600">ROT-avdrag:</td>
-                  <td className="py-1 text-right text-green-600">
+                  <td className="py-1 text-right text-green-600 dark:text-green-400">ROT-avdrag:</td>
+                  <td className="py-1 text-right text-green-600 dark:text-green-400">
                     {calculateTotalRotDeduction(quote.items).toLocaleString()} kr
                   </td>
                 </tr>
                 <tr>
                   <td colSpan={5}></td>
-                  <td className="pt-2 font-semibold text-right text-green-600 border-t border-gray-200">
+                  <td className="pt-2 font-semibold text-right text-green-600 dark:text-green-400 border-t border-border">
                     Att betala efter ROT:
                   </td>
-                  <td className="pt-2 font-semibold text-right text-green-600 border-t border-gray-200">
+                  <td className="pt-2 font-semibold text-right text-green-600 dark:text-green-400 border-t border-border">
                     {(calculateTotal(quote.items, quote.totalDiscountType, quote.totalDiscountValue) - 
                       calculateTotalRotDeduction(quote.items)).toLocaleString()} kr
                   </td>
@@ -174,8 +174,8 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
       
       {quote.notes && (
         <div className="mt-8">
-          <h3 className="font-semibold mb-2">Meddelande:</h3>
-          <div className="bg-gray-50 p-4 rounded whitespace-pre-line">
+          <h3 className="font-semibold mb-2 text-card-foreground">Meddelande:</h3>
+          <div className="bg-muted p-4 rounded whitespace-pre-line text-muted-foreground">
             {quote.notes}
           </div>
         </div>
@@ -183,17 +183,17 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
       
       {quote.terms && (
         <div className="mt-8">
-          <h3 className="font-semibold mb-2">Villkor:</h3>
-          <div className="bg-gray-50 p-4 rounded whitespace-pre-line">
+          <h3 className="font-semibold mb-2 text-card-foreground">Villkor:</h3>
+          <div className="bg-muted p-4 rounded whitespace-pre-line text-muted-foreground">
             {quote.terms}
           </div>
         </div>
       )}
       
       {quote.items.some(item => item.hasRotDeduction) && (
-        <div className="mt-8 text-sm bg-green-50 p-4 rounded border border-green-200">
-          <h3 className="font-semibold mb-2 text-green-800">Information om ROT-avdrag:</h3>
-          <p className="text-green-800">
+        <div className="mt-8 text-sm bg-green-50 dark:bg-green-900/20 p-4 rounded border border-green-200 dark:border-green-800">
+          <h3 className="font-semibold mb-2 text-green-800 dark:text-green-300">Information om ROT-avdrag:</h3>
+          <p className="text-green-800 dark:text-green-300">
             ROT-avdraget är ett skatteavdrag som ger privatpersoner möjlighet att få skattereduktion för arbetskostnader vid reparation, underhåll samt om- och tillbyggnad av bostäder. 
             Avdraget uppgår till 30% av arbetskostnaden, upp till maximalt 50 000 kr per person och år.
           </p>
