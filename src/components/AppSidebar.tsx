@@ -59,7 +59,7 @@ export function AppSidebar() {
   };
 
   const handleNavClick = () => {
-    // Close mobile sidebar when a nav item is clicked
+    // Only close mobile sidebar when a nav item is clicked
     setOpenMobile(false);
   };
 

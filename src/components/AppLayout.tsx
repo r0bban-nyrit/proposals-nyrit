@@ -4,6 +4,7 @@ import { AppSidebar } from "./AppSidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileHeader } from "./MobileHeader";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useEffect, useState } from "react";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -12,9 +13,34 @@ interface AppLayoutProps {
 
 export function AppLayout({ children, title = "OffertPro" }: AppLayoutProps) {
   const isMobile = useIsMobile();
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(() => {
+    // Get initial state from localStorage or default to open on desktop, closed on mobile
+    const stored = localStorage.getItem("sidebar:state");
+    if (stored !== null) {
+      return stored === "true";
+    }
+    return !isMobile;
+  });
+
+  // Persist sidebar state to localStorage whenever it changes
+  const handleSidebarChange = (open: boolean) => {
+    setSidebarOpen(open);
+    localStorage.setItem("sidebar:state", open.toString());
+  };
+
+  // Update default state when mobile/desktop changes, but only if no stored preference
+  useEffect(() => {
+    const stored = localStorage.getItem("sidebar:state");
+    if (stored === null) {
+      setSidebarOpen(!isMobile);
+    }
+  }, [isMobile]);
   
   return (
-    <SidebarProvider defaultOpen={!isMobile}>
+    <SidebarProvider 
+      open={sidebarOpen}
+      onOpenChange={handleSidebarChange}
+    >
       <div className="min-h-screen w-full flex">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
