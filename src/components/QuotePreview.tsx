@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Quote, BusinessProfile } from "@/types";
 import { format, parseISO } from "date-fns";
@@ -14,6 +13,7 @@ interface QuotePreviewProps {
 
 export default function QuotePreview({ quote, businessProfile }: QuotePreviewProps) {
   const isMobile = useIsMobile();
+  const hasRotItems = quote.items.some(item => item.hasRotDeduction);
   
   const formatDate = (dateString: string) => {
     try {
@@ -88,7 +88,7 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
           <th className="py-2 text-left pl-4">Enhet</th>
           <th className="py-2 text-right">Á pris</th>
           <th className="py-2 text-right">Rabatt</th>
-          <th className="py-2 text-center">ROT</th>
+          {hasRotItems && <th className="py-2 text-center">ROT</th>}
           <th className="py-2 text-right">Summa</th>
         </tr>
       </thead>
@@ -102,9 +102,11 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
             <td className="py-3 text-right">
               {renderDiscount(item.discountType, item.discountValue)}
             </td>
-            <td className="py-3 text-center">
-              {item.hasRotDeduction && <CircleCheck className="h-4 w-4 mx-auto text-green-600" />}
-            </td>
+            {hasRotItems && (
+              <td className="py-3 text-center">
+                {item.hasRotDeduction && <CircleCheck className="h-4 w-4 mx-auto text-green-600" />}
+              </td>
+            )}
             <td className="py-3 text-right">
               {calculateItemPrice(item).toLocaleString()} kr
             </td>
@@ -113,7 +115,7 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
       </tbody>
       <tfoot>
         <tr>
-          <td colSpan={5}></td>
+          <td colSpan={hasRotItems ? 5 : 4}></td>
           <td className="pt-4 font-semibold text-right">Delsumma:</td>
           <td className="pt-4 font-semibold text-right">
             {calculateSubtotal(quote.items).toLocaleString()} kr
@@ -122,7 +124,7 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
         
         {(quote.totalDiscountValue && quote.totalDiscountValue > 0) && (
           <tr>
-            <td colSpan={5}></td>
+            <td colSpan={hasRotItems ? 5 : 4}></td>
             <td className="py-1 text-right">Rabatt:</td>
             <td className="py-1 text-right">
               {quote.totalDiscountType === "percentage" 
@@ -133,7 +135,7 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
         )}
         
         <tr>
-          <td colSpan={5}></td>
+          <td colSpan={hasRotItems ? 5 : 4}></td>
           <td className="pt-2 font-semibold text-right border-t border-border">Totalt:</td>
           <td className="pt-2 font-semibold text-right border-t border-border">
             {calculateTotal(quote.items, quote.totalDiscountType, quote.totalDiscountValue).toLocaleString()} kr
@@ -143,14 +145,14 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
         {calculateTotalRotDeduction(quote.items) > 0 && (
           <>
             <tr>
-              <td colSpan={5}></td>
+              <td colSpan={hasRotItems ? 5 : 4}></td>
               <td className="py-1 text-right text-green-600 dark:text-green-400">ROT-avdrag:</td>
               <td className="py-1 text-right text-green-600 dark:text-green-400">
                 {calculateTotalRotDeduction(quote.items).toLocaleString()} kr
               </td>
             </tr>
             <tr>
-              <td colSpan={5}></td>
+              <td colSpan={hasRotItems ? 5 : 4}></td>
               <td className="pt-2 font-semibold text-right text-green-600 dark:text-green-400 border-t border-border">
                 Att betala efter ROT:
               </td>
@@ -292,7 +294,7 @@ export default function QuotePreview({ quote, businessProfile }: QuotePreviewPro
         </div>
       )}
       
-      {quote.items.some(item => item.hasRotDeduction) && (
+      {hasRotItems && (
         <div className="mt-8 text-sm bg-green-50 dark:bg-green-900/20 p-4 rounded border border-green-200 dark:border-green-800">
           <h3 className="font-semibold mb-2 text-green-800 dark:text-green-300">Information om ROT-avdrag:</h3>
           <p className="text-green-800 dark:text-green-300 break-words">

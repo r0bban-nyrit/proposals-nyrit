@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Quote, QuoteItem } from "@/types";
@@ -211,7 +210,7 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                       value={item.quantity || ""}
                       onChange={(e) => updateItem(item.id, "quantity", parseFloat(e.target.value) || 0)}
                       onFocus={handleNumberInputFocus}
-                      className="text-base md:text-sm pr-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="text-base md:text-sm pr-8 min-w-0 w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     {isQuantityInvalid(item.quantity) && (
                       <AlertTriangle className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-500" />
@@ -223,7 +222,7 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                   <Input
                     value={item.unit || ""}
                     onChange={(e) => updateItem(item.id, "unit", e.target.value)}
-                    className="text-base md:text-sm"
+                    className="text-base md:text-sm min-w-0 w-full"
                   />
                 </div>
                 <div className="md:col-span-2 w-full">
@@ -235,7 +234,7 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                       value={item.price || ""}
                       onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
                       onFocus={handleNumberInputFocus}
-                      className="text-base md:text-sm pr-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="text-base md:text-sm pr-8 min-w-0 w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     {isPriceInvalid(item.price) && (
                       <AlertTriangle className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-500" />
@@ -265,7 +264,7 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                       value={item.discountValue || ""}
                       onChange={(e) => updateItem(item.id, "discountValue", e.target.value ? parseFloat(e.target.value) : undefined)}
                       placeholder="0"
-                      className="w-full md:w-[80px] text-base md:text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="min-w-0 flex-1 text-base md:text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                   </div>
                 </div>
