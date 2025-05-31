@@ -57,14 +57,6 @@ export function AppSidebar() {
     if (path === "/") return currentPath === path;
     return currentPath.startsWith(path);
   };
-  
-  const getNavClass = (isItemActive: boolean) => {
-    return `flex items-center gap-2 w-full px-3 py-2 rounded-md transition-colors ${
-      isItemActive 
-        ? "bg-brand-100 text-brand-700 font-medium" 
-        : "text-gray-600 hover:bg-gray-100"
-    }`;
-  };
 
   const handleNavClick = () => {
     // Close mobile sidebar when a nav item is clicked
@@ -74,7 +66,7 @@ export function AppSidebar() {
   return (
     <Sidebar 
       className="border-r border-gray-200"
-      collapsible="offcanvas"
+      collapsible="icon"
     >
       <SidebarContent className="px-2">
         <SidebarGroup>
@@ -85,10 +77,13 @@ export function AppSidebar() {
             <SidebarMenu>
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={isActive(item.path)}
+                    tooltip={item.title}
+                  >
                     <NavLink
                       to={item.path}
-                      className={() => getNavClass(isActive(item.path))}
                       onClick={handleNavClick}
                     >
                       <item.icon className="h-5 w-5" />
