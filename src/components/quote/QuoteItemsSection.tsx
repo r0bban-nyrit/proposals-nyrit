@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Quote, QuoteItem } from "@/types";
@@ -6,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, Tag, Percent, CircleCheck } from "lucide-react";
+import { Plus, Trash2, Tag, Percent, CircleCheck, AlertTriangle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { calculateItemPrice, calculateSubtotal, calculateTotal, calculateTotalRotDeduction, serviceDescriptionSuggestions } from "@/utils/quoteUtils";
@@ -119,6 +118,13 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
     filterSuggestionsForItem(itemId, value);
   };
 
+  const handleNumberInputFocus = (event: React.FocusEvent<HTMLInputElement>) => {
+    // Select all text when focusing on zero values
+    if (event.target.value === "0") {
+      event.target.select();
+    }
+  };
+
   const calculateItemSubtotal = (item: QuoteItem): number => {
     return calculateItemPrice(item);
   };
@@ -175,13 +181,19 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
               
               <div className="md:col-span-1 w-full">
                 <div className="md:hidden mb-1 font-medium text-sm">Antal</div>
-                <Input
-                  type="number"
-                  min="1"
-                  value={item.quantity}
-                  onChange={(e) => updateItem(item.id, "quantity", parseFloat(e.target.value))}
-                  className="text-base md:text-sm"
-                />
+                <div className="relative">
+                  <Input
+                    type="number"
+                    min="1"
+                    value={item.quantity}
+                    onChange={(e) => updateItem(item.id, "quantity", parseFloat(e.target.value))}
+                    onFocus={handleNumberInputFocus}
+                    className="text-base md:text-sm pr-8"
+                  />
+                  {item.quantity === 0 && (
+                    <AlertTriangle className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-500" />
+                  )}
+                </div>
               </div>
               <div className="md:col-span-1 w-full">
                 <div className="md:hidden mb-1 font-medium text-sm">Enhet</div>
@@ -193,13 +205,19 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
               </div>
               <div className="md:col-span-2 w-full">
                 <div className="md:hidden mb-1 font-medium text-sm">Á pris</div>
-                <Input
-                  type="number"
-                  min="0"
-                  value={item.price}
-                  onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value))}
-                  className="text-base md:text-sm"
-                />
+                <div className="relative">
+                  <Input
+                    type="number"
+                    min="0"
+                    value={item.price}
+                    onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value))}
+                    onFocus={handleNumberInputFocus}
+                    className="text-base md:text-sm pr-8"
+                  />
+                  {item.price === 0 && (
+                    <AlertTriangle className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-500" />
+                  )}
+                </div>
               </div>
               <div className="md:col-span-2 w-full">
                 <div className="md:hidden mb-1 font-medium text-sm">Rabatt</div>
