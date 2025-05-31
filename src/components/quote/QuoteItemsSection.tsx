@@ -203,9 +203,9 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                   </div>
                 </div>
                 
-                {/* All other fields on the same row */}
-                <div className="grid grid-cols-6 gap-2">
-                  <div className="col-span-1">
+                {/* Quantity and UOM on first row */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
                     <div className="mb-1 font-medium text-sm">Antal</div>
                     <div className="relative">
                       <Input
@@ -222,7 +222,7 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                     </div>
                   </div>
                   
-                  <div className="col-span-1">
+                  <div>
                     <div className="mb-1 font-medium text-sm">Enhet</div>
                     <Input
                       value={item.unit || ""}
@@ -230,8 +230,11 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                       className="text-base min-w-0 w-full"
                     />
                   </div>
-                  
-                  <div className="col-span-1">
+                </div>
+                
+                {/* Unit price, discount, and ROT on second row */}
+                <div className="grid grid-cols-4 gap-2">
+                  <div>
                     <div className="mb-1 font-medium text-sm">Á pris</div>
                     <div className="relative">
                       <Input
@@ -276,7 +279,7 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                     </div>
                   </div>
                   
-                  <div className="col-span-1 flex items-center justify-center pt-6">
+                  <div className="flex items-center justify-center">
                     <div className="flex flex-col items-center">
                       <div className="mb-1 font-medium text-sm text-center">ROT</div>
                       <Checkbox
