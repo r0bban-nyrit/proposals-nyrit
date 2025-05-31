@@ -5,11 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function Installningar() {
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
   const [defaultTerms, setDefaultTerms] = useState(
     "Betalningsvillkor: 30 dagar\nOfferttid: 30 dagar"
   );
@@ -47,6 +50,14 @@ export default function Installningar() {
     }
   };
 
+  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
+    setTheme(newTheme);
+    toast({
+      title: "Tema uppdaterat",
+      description: `Tema ändrat till ${newTheme === 'light' ? 'ljust' : newTheme === 'dark' ? 'mörkt' : 'systemstandard'}.`,
+    });
+  };
+
   return (
     <AppLayout>
       <Header 
@@ -55,6 +66,32 @@ export default function Installningar() {
       />
       
       <div className="grid gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Utseende</CardTitle>
+            <CardDescription>
+              Välj hur applikationen ska se ut
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="theme">Tema</Label>
+                <Select value={theme} onValueChange={handleThemeChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Välj tema" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="light">Ljust</SelectItem>
+                    <SelectItem value="dark">Mörkt</SelectItem>
+                    <SelectItem value="system">Systemstandard</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>Standardvillkor</CardTitle>
