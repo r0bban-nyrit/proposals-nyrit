@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Quote, QuoteItem } from "@/types";
@@ -160,7 +159,8 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
           
           {quote.items.map((item) => (
             <div key={item.id} className="md:grid grid-cols-12 gap-4 items-start flex flex-col space-y-2 md:space-y-0 border-b pb-4 md:border-0 md:pb-0">
-              <div className="md:col-span-5 w-full">
+              {/* Mobile: Description first */}
+              <div className="md:col-span-5 w-full order-1 md:order-none">
                 <div className="md:hidden mb-1 font-medium text-sm">Beskrivning</div>
                 <div className="relative w-full">
                   <Textarea
@@ -169,8 +169,17 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                     onFocus={() => filterSuggestionsForItem(item.id, inputValues[item.id] || '')}
                     placeholder="Beskrivning av vara/tjänst"
                     required
-                    className="w-full text-base md:text-sm min-h-[40px] resize-none"
+                    className="w-full text-base md:text-sm resize-none overflow-hidden"
                     rows={1}
+                    style={{
+                      height: 'auto',
+                      minHeight: '40px'
+                    }}
+                    onInput={(e) => {
+                      const target = e.target as HTMLTextAreaElement;
+                      target.style.height = 'auto';
+                      target.style.height = target.scrollHeight + 'px';
+                    }}
                   />
                   {showSuggestions[item.id] && suggestions[item.id]?.length > 0 && (
                     <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-[200px] overflow-y-auto">
@@ -190,74 +199,78 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                 </div>
               </div>
               
-              <div className="md:col-span-1 w-full">
-                <div className="md:hidden mb-1 font-medium text-sm">Antal</div>
-                <div className="relative">
-                  <Input
-                    type="number"
-                    min="1"
-                    value={item.quantity || ""}
-                    onChange={(e) => updateItem(item.id, "quantity", parseFloat(e.target.value) || 0)}
-                    onFocus={handleNumberInputFocus}
-                    className="text-base md:text-sm pr-8"
-                  />
-                  {isQuantityInvalid(item.quantity) && (
-                    <AlertTriangle className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-500" />
-                  )}
+              {/* Mobile: Other details in grid below description */}
+              <div className="md:contents order-2 md:order-none w-full grid grid-cols-2 gap-2 md:gap-4">
+                <div className="md:col-span-1 w-full">
+                  <div className="md:hidden mb-1 font-medium text-sm">Antal</div>
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      min="1"
+                      value={item.quantity || ""}
+                      onChange={(e) => updateItem(item.id, "quantity", parseFloat(e.target.value) || 0)}
+                      onFocus={handleNumberInputFocus}
+                      className="text-base md:text-sm pr-8"
+                    />
+                    {isQuantityInvalid(item.quantity) && (
+                      <AlertTriangle className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-500" />
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="md:col-span-1 w-full">
-                <div className="md:hidden mb-1 font-medium text-sm">Enhet</div>
-                <Input
-                  value={item.unit || ""}
-                  onChange={(e) => updateItem(item.id, "unit", e.target.value)}
-                  className="text-base md:text-sm"
-                />
-              </div>
-              <div className="md:col-span-2 w-full">
-                <div className="md:hidden mb-1 font-medium text-sm">Á pris</div>
-                <div className="relative">
+                <div className="md:col-span-1 w-full">
+                  <div className="md:hidden mb-1 font-medium text-sm">Enhet</div>
                   <Input
-                    type="number"
-                    min="0"
-                    value={item.price || ""}
-                    onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
-                    onFocus={handleNumberInputFocus}
-                    className="text-base md:text-sm pr-8"
-                  />
-                  {isPriceInvalid(item.price) && (
-                    <AlertTriangle className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-500" />
-                  )}
-                </div>
-              </div>
-              <div className="md:col-span-2 w-full">
-                <div className="md:hidden mb-1 font-medium text-sm">Rabatt</div>
-                <div className="flex space-x-1">
-                  <Select
-                    value={item.discountType || "amount"}
-                    onValueChange={(value: 'percentage' | 'amount') => updateItem(item.id, "discountType", value)}
-                  >
-                    <SelectTrigger className="w-[60px] text-base md:text-sm">
-                      <SelectValue>
-                        {item.discountType === "percentage" ? <Percent className="h-4 w-4" /> : <Tag className="h-4 w-4" />}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="amount"><div className="flex items-center"><Tag className="h-4 w-4 mr-2" /> kr</div></SelectItem>
-                      <SelectItem value="percentage"><div className="flex items-center"><Percent className="h-4 w-4 mr-2" /> %</div></SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    type="number"
-                    min="0"
-                    value={item.discountValue || ""}
-                    onChange={(e) => updateItem(item.id, "discountValue", e.target.value ? parseFloat(e.target.value) : undefined)}
-                    placeholder="0"
-                    className="w-full md:w-[80px] text-base md:text-sm"
+                    value={item.unit || ""}
+                    onChange={(e) => updateItem(item.id, "unit", e.target.value)}
+                    className="text-base md:text-sm"
                   />
                 </div>
+                <div className="md:col-span-2 w-full">
+                  <div className="md:hidden mb-1 font-medium text-sm">Á pris</div>
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      min="0"
+                      value={item.price || ""}
+                      onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
+                      onFocus={handleNumberInputFocus}
+                      className="text-base md:text-sm pr-8"
+                    />
+                    {isPriceInvalid(item.price) && (
+                      <AlertTriangle className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-500" />
+                    )}
+                  </div>
+                </div>
+                <div className="md:col-span-2 w-full col-span-2">
+                  <div className="md:hidden mb-1 font-medium text-sm">Rabatt</div>
+                  <div className="flex space-x-1">
+                    <Select
+                      value={item.discountType || "amount"}
+                      onValueChange={(value: 'percentage' | 'amount') => updateItem(item.id, "discountType", value)}
+                    >
+                      <SelectTrigger className="w-[60px] text-base md:text-sm">
+                        <SelectValue>
+                          {item.discountType === "percentage" ? <Percent className="h-4 w-4" /> : <Tag className="h-4 w-4" />}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="amount"><div className="flex items-center"><Tag className="h-4 w-4 mr-2" /> kr</div></SelectItem>
+                        <SelectItem value="percentage"><div className="flex items-center"><Percent className="h-4 w-4 mr-2" /> %</div></SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={item.discountValue || ""}
+                      onChange={(e) => updateItem(item.id, "discountValue", e.target.value ? parseFloat(e.target.value) : undefined)}
+                      placeholder="0"
+                      className="w-full md:w-[80px] text-base md:text-sm"
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="md:col-span-1 flex items-center w-full pt-2 md:pt-0">
+              
+              <div className="md:col-span-1 flex items-center w-full pt-2 md:pt-0 order-3 md:order-none">
                 <div className="md:hidden mr-2 font-medium text-sm">ROT-avdrag</div>
                 <Checkbox
                   checked={item.hasRotDeduction}
@@ -265,7 +278,7 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                   className="h-5 w-5 md:h-4 md:w-4"
                 />
               </div>
-              <div className="md:col-span-12 flex justify-between items-center w-full">
+              <div className="md:col-span-12 flex justify-between items-center w-full order-4 md:order-none">
                 <div className="text-sm">
                   Summa: {calculateItemSubtotal(item).toLocaleString()} kr
                   {item.hasRotDeduction && (
