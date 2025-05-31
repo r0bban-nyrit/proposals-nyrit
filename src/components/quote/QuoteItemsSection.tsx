@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Quote, QuoteItem } from "@/types";
@@ -146,7 +147,7 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
           Lägg till varor eller tjänster i offerten
         </CardDescription>
       </CardHeader>
-      <CardContent className="card-content-scroll">
+      <CardContent className="card-content-scroll overflow-x-hidden">
         <div className="space-y-4">
           <div className="hidden md:grid grid-cols-12 gap-4 font-medium text-sm">
             <div className="col-span-5">Beskrivning</div>
@@ -210,7 +211,7 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                       value={item.quantity || ""}
                       onChange={(e) => updateItem(item.id, "quantity", parseFloat(e.target.value) || 0)}
                       onFocus={handleNumberInputFocus}
-                      className="text-base md:text-sm pr-8"
+                      className="text-base md:text-sm pr-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     {isQuantityInvalid(item.quantity) && (
                       <AlertTriangle className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-500" />
@@ -234,7 +235,7 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                       value={item.price || ""}
                       onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
                       onFocus={handleNumberInputFocus}
-                      className="text-base md:text-sm pr-8"
+                      className="text-base md:text-sm pr-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     {isPriceInvalid(item.price) && (
                       <AlertTriangle className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-500" />
@@ -264,7 +265,7 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                       value={item.discountValue || ""}
                       onChange={(e) => updateItem(item.id, "discountValue", e.target.value ? parseFloat(e.target.value) : undefined)}
                       placeholder="0"
-                      className="w-full md:w-[80px] text-base md:text-sm"
+                      className="w-full md:w-[80px] text-base md:text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                   </div>
                 </div>
@@ -279,10 +280,10 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                 />
               </div>
               <div className="md:col-span-12 flex justify-between items-center w-full order-4 md:order-none">
-                <div className="text-sm">
-                  Summa: {calculateItemSubtotal(item).toLocaleString()} kr
+                <div className="text-sm min-w-0 flex-1 mr-2">
+                  <span className="break-words">Summa: {calculateItemSubtotal(item).toLocaleString()} kr</span>
                   {item.hasRotDeduction && (
-                    <span className="ml-2 text-green-600">(ROT-avdrag: {(calculateItemSubtotal(item) * 0.3).toLocaleString()} kr)</span>
+                    <span className="ml-2 text-green-600 break-words">(ROT-avdrag: {(calculateItemSubtotal(item) * 0.3).toLocaleString()} kr)</span>
                   )}
                 </div>
                 <Button
@@ -290,6 +291,7 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                   variant="ghost"
                   size="icon"
                   onClick={() => removeItem(item.id)}
+                  className="flex-shrink-0"
                 >
                   <Trash2 className="h-5 w-5 md:h-4 md:w-4" />
                 </Button>
@@ -321,7 +323,7 @@ interface TotalSectionProps {
 
 function TotalSection({ quote, setQuote }: TotalSectionProps) {
   return (
-    <div className="mt-6 pt-4 border-t">
+    <div className="mt-6 pt-4 border-t overflow-x-hidden">
       <div className="flex justify-between items-center mb-2">
         <div className="font-medium">Delsumma:</div>
         <div>{calculateSubtotal(quote.items).toLocaleString()} kr</div>
@@ -351,11 +353,11 @@ function TotalSection({ quote, setQuote }: TotalSectionProps) {
               value={quote.totalDiscountValue || ""}
               onChange={(e) => setQuote({ ...quote, totalDiscountValue: e.target.value ? parseFloat(e.target.value) : undefined })}
               placeholder="0"
-              className="w-[100px] text-base md:text-sm"
+              className="w-[100px] text-base md:text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
         </div>
-        <div>
+        <div className="break-words">
           {quote.totalDiscountValue ? (
             quote.totalDiscountType === "percentage" 
               ? `${(calculateSubtotal(quote.items) * quote.totalDiscountValue / 100).toLocaleString()} kr`
@@ -376,13 +378,13 @@ function TotalSection({ quote, setQuote }: TotalSectionProps) {
       
       <div className="flex justify-between items-center text-xl font-medium mt-2 pt-2 border-t">
         <div>Totalsumma:</div>
-        <div>{calculateTotal(quote.items, quote.totalDiscountType, quote.totalDiscountValue).toLocaleString()} kr</div>
+        <div className="break-words">{calculateTotal(quote.items, quote.totalDiscountType, quote.totalDiscountValue).toLocaleString()} kr</div>
       </div>
       
       {calculateTotalRotDeduction(quote.items) > 0 && (
         <div className="flex justify-between items-center text-sm text-green-600">
           <div>Efter ROT-avdrag:</div>
-          <div>{(calculateTotal(quote.items, quote.totalDiscountType, quote.totalDiscountValue) - calculateTotalRotDeduction(quote.items)).toLocaleString()} kr</div>
+          <div className="break-words">{(calculateTotal(quote.items, quote.totalDiscountType, quote.totalDiscountValue) - calculateTotalRotDeduction(quote.items)).toLocaleString()} kr</div>
         </div>
       )}
     </div>
