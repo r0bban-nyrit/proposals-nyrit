@@ -76,17 +76,40 @@ export function QuoteListItem({ quote, onStatusChange }: QuoteListItemProps) {
     
     switch (quote.status) {
       case "draft":
-        return "outline";
+        return "outline"; // Gray
       case "sent":
-        return "secondary";
+        return "default"; // Blue (using primary color)
       case "accepted":
-        return "default";
+        return "secondary"; // We'll need to customize this for green
       case "rejected":
         return "destructive";
       case "expired":
         return "destructive";
       default:
         return "outline";
+    }
+  };
+
+  const getBadgeClassName = () => {
+    const isExpired = isAfter(new Date(), parseISO(quote.validUntil));
+    
+    if (isExpired && quote.status === "draft") {
+      return "";
+    }
+    
+    switch (quote.status) {
+      case "draft":
+        return "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200";
+      case "sent":
+        return "bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200";
+      case "accepted":
+        return "bg-green-100 text-green-700 border-green-300 hover:bg-green-200";
+      case "rejected":
+        return "";
+      case "expired":
+        return "";
+      default:
+        return "";
     }
   };
 
@@ -123,7 +146,12 @@ export function QuoteListItem({ quote, onStatusChange }: QuoteListItemProps) {
               #{quote.number} | {formatDate(quote.createdAt)}
             </div>
             <div className="mt-2">
-              <Badge variant={getBadgeVariant()}>{getStatusText()}</Badge>
+              <Badge 
+                variant={getBadgeVariant()} 
+                className={getBadgeClassName()}
+              >
+                {getStatusText()}
+              </Badge>
             </div>
           </div>
           <div className="text-right">
