@@ -5,8 +5,7 @@ import {
   User, 
   Settings,
   LayoutDashboard,
-  FileText,
-  Menu
+  FileText
 } from "lucide-react";
 import { 
   Sidebar, 
@@ -17,7 +16,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
   useSidebar
 } from "@/components/ui/sidebar";
 
@@ -51,7 +49,7 @@ const navItems = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const { state, setOpenMobile } = useSidebar();
+  const { setOpenMobile } = useSidebar();
   const currentPath = location.pathname;
   
   // Helper functions
@@ -78,18 +76,9 @@ export function AppSidebar() {
       className="border-r border-gray-200"
       collapsible="offcanvas"
     >
-      <div className="flex h-14 items-center justify-between px-4 border-b">
-        {state !== "collapsed" && (
-          <div className="text-lg font-semibold text-brand-800">OffertPro</div>
-        )}
-        <SidebarTrigger>
-          <Menu className="h-5 w-5" />
-        </SidebarTrigger>
-      </div>
-
       <SidebarContent className="px-2">
         <SidebarGroup>
-          <SidebarGroupLabel className={state === "collapsed" ? "sr-only" : ""}>
+          <SidebarGroupLabel>
             Meny
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -103,7 +92,7 @@ export function AppSidebar() {
                       onClick={handleNavClick}
                     >
                       <item.icon className="h-5 w-5" />
-                      {state !== "collapsed" && <span>{item.title}</span>}
+                      <span>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
