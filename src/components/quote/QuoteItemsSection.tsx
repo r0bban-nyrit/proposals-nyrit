@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Quote, QuoteItem } from "@/types";
@@ -146,9 +147,10 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
           Lägg till varor eller tjänster i offerten
         </CardDescription>
       </CardHeader>
-      <CardContent className="card-content-scroll overflow-x-hidden">
+      <CardContent className="card-content-scroll overflow-x-auto">
         <div className="space-y-4">
-          <div className="hidden md:grid grid-cols-12 gap-4 font-medium text-sm">
+          {/* Desktop header - only show on xl screens and above */}
+          <div className="hidden xl:grid grid-cols-12 gap-4 font-medium text-sm">
             <div className="col-span-5">Beskrivning</div>
             <div className="col-span-1">Antal</div>
             <div className="col-span-1">Enhet</div>
@@ -158,51 +160,195 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
           </div>
           
           {quote.items.map((item) => (
-            <div key={item.id} className="md:grid grid-cols-12 gap-4 items-start flex flex-col space-y-2 md:space-y-0 border-b pb-4 md:border-0 md:pb-0">
-              {/* Mobile: Description first */}
-              <div className="md:col-span-5 w-full order-1 md:order-none">
-                <div className="md:hidden mb-1 font-medium text-sm">Beskrivning</div>
-                <div className="relative w-full">
-                  <Textarea
-                    value={inputValues[item.id] || ''}
-                    onChange={(e) => handleDescriptionInputChange(item.id, e.target.value)}
-                    onFocus={() => filterSuggestionsForItem(item.id, inputValues[item.id] || '')}
-                    placeholder="Beskrivning av vara/tjänst"
-                    required
-                    className="w-full text-base md:text-sm resize-none overflow-hidden"
-                    rows={1}
-                    style={{
-                      height: 'auto',
-                      minHeight: '40px'
-                    }}
-                    onInput={(e) => {
-                      const target = e.target as HTMLTextAreaElement;
-                      target.style.height = 'auto';
-                      target.style.height = target.scrollHeight + 'px';
-                    }}
-                  />
-                  {showSuggestions[item.id] && suggestions[item.id]?.length > 0 && (
-                    <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-[200px] overflow-y-auto">
-                      {suggestions[item.id].map((suggestion) => (
-                        <div
-                          key={suggestion}
-                          onClick={() => handleDescriptionSelect(item.id, suggestion)}
-                          className={`px-4 py-3 md:py-2 text-base md:text-sm cursor-pointer hover:bg-gray-100 flex items-center justify-between ${
-                            suggestion === inputValues[item.id] ? 'bg-gray-50' : ''
-                          }`}
-                        >
-                          {suggestion}
-                        </div>
-                      ))}
+            <div key={item.id}>
+              {/* Mobile and Tablet Layout (below xl) */}
+              <div className="xl:hidden space-y-3 border-b pb-4">
+                {/* Description on its own row */}
+                <div className="w-full">
+                  <div className="mb-1 font-medium text-sm">Beskrivning</div>
+                  <div className="relative w-full">
+                    <Textarea
+                      value={inputValues[item.id] || ''}
+                      onChange={(e) => handleDescriptionInputChange(item.id, e.target.value)}
+                      onFocus={() => filterSuggestionsForItem(item.id, inputValues[item.id] || '')}
+                      placeholder="Beskrivning av vara/tjänst"
+                      required
+                      className="w-full text-base resize-none overflow-hidden"
+                      rows={1}
+                      style={{
+                        height: 'auto',
+                        minHeight: '40px'
+                      }}
+                      onInput={(e) => {
+                        const target = e.target as HTMLTextAreaElement;
+                        target.style.height = 'auto';
+                        target.style.height = target.scrollHeight + 'px';
+                      }}
+                    />
+                    {showSuggestions[item.id] && suggestions[item.id]?.length > 0 && (
+                      <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-[200px] overflow-y-auto">
+                        {suggestions[item.id].map((suggestion) => (
+                          <div
+                            key={suggestion}
+                            onClick={() => handleDescriptionSelect(item.id, suggestion)}
+                            className={`px-4 py-3 text-base cursor-pointer hover:bg-gray-100 flex items-center justify-between ${
+                              suggestion === inputValues[item.id] ? 'bg-gray-50' : ''
+                            }`}
+                          >
+                            {suggestion}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* All other fields on the same row */}
+                <div className="grid grid-cols-6 gap-2">
+                  <div className="col-span-1">
+                    <div className="mb-1 font-medium text-sm">Antal</div>
+                    <div className="relative">
+                      <Input
+                        type="number"
+                        min="1"
+                        value={item.quantity || ""}
+                        onChange={(e) => updateItem(item.id, "quantity", parseFloat(e.target.value) || 0)}
+                        onFocus={handleNumberInputFocus}
+                        className="text-base pr-8 min-w-0 w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
+                      {isQuantityInvalid(item.quantity) && (
+                        <AlertTriangle className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-500" />
+                      )}
                     </div>
-                  )}
+                  </div>
+                  
+                  <div className="col-span-1">
+                    <div className="mb-1 font-medium text-sm">Enhet</div>
+                    <Input
+                      value={item.unit || ""}
+                      onChange={(e) => updateItem(item.id, "unit", e.target.value)}
+                      className="text-base min-w-0 w-full"
+                    />
+                  </div>
+                  
+                  <div className="col-span-1">
+                    <div className="mb-1 font-medium text-sm">Á pris</div>
+                    <div className="relative">
+                      <Input
+                        type="number"
+                        min="0"
+                        value={item.price || ""}
+                        onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
+                        onFocus={handleNumberInputFocus}
+                        className="text-base pr-8 min-w-0 w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
+                      {isPriceInvalid(item.price) && (
+                        <AlertTriangle className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-500" />
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="col-span-2">
+                    <div className="mb-1 font-medium text-sm">Rabatt</div>
+                    <div className="flex space-x-1">
+                      <Select
+                        value={item.discountType || "amount"}
+                        onValueChange={(value: 'percentage' | 'amount') => updateItem(item.id, "discountType", value)}
+                      >
+                        <SelectTrigger className="w-[50px] text-base">
+                          <SelectValue>
+                            {item.discountType === "percentage" ? <Percent className="h-4 w-4" /> : <Tag className="h-4 w-4" />}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="amount"><div className="flex items-center"><Tag className="h-4 w-4 mr-2" /> kr</div></SelectItem>
+                          <SelectItem value="percentage"><div className="flex items-center"><Percent className="h-4 w-4 mr-2" /> %</div></SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={item.discountValue || ""}
+                        onChange={(e) => updateItem(item.id, "discountValue", e.target.value ? parseFloat(e.target.value) : undefined)}
+                        placeholder="0"
+                        className="min-w-0 flex-1 text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="col-span-1 flex items-center justify-center pt-6">
+                    <div className="flex flex-col items-center">
+                      <div className="mb-1 font-medium text-sm text-center">ROT</div>
+                      <Checkbox
+                        checked={item.hasRotDeduction}
+                        onCheckedChange={(checked) => updateItem(item.id, "hasRotDeduction", !!checked)}
+                        className="h-5 w-5"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Summary and delete button */}
+                <div className="flex justify-between items-center pt-2 border-t border-border">
+                  <div className="text-sm min-w-0 flex-1 mr-2">
+                    <span className="break-words">Summa: {calculateItemSubtotal(item).toLocaleString()} kr</span>
+                    {item.hasRotDeduction && (
+                      <span className="ml-2 text-green-600 break-words">(ROT-avdrag: {(calculateItemSubtotal(item) * 0.3).toLocaleString()} kr)</span>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeItem(item.id)}
+                    className="flex-shrink-0"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
                 </div>
               </div>
-              
-              {/* Mobile: Other details in grid below description */}
-              <div className="md:contents order-2 md:order-none w-full grid grid-cols-2 gap-2 md:gap-4">
-                <div className="md:col-span-1 w-full">
-                  <div className="md:hidden mb-1 font-medium text-sm">Antal</div>
+
+              {/* Desktop Layout (xl and above) */}
+              <div className="hidden xl:grid grid-cols-12 gap-4 items-start border-b pb-4">
+                <div className="col-span-5 w-full">
+                  <div className="relative w-full">
+                    <Textarea
+                      value={inputValues[item.id] || ''}
+                      onChange={(e) => handleDescriptionInputChange(item.id, e.target.value)}
+                      onFocus={() => filterSuggestionsForItem(item.id, inputValues[item.id] || '')}
+                      placeholder="Beskrivning av vara/tjänst"
+                      required
+                      className="w-full text-sm resize-none overflow-hidden"
+                      rows={1}
+                      style={{
+                        height: 'auto',
+                        minHeight: '40px'
+                      }}
+                      onInput={(e) => {
+                        const target = e.target as HTMLTextAreaElement;
+                        target.style.height = 'auto';
+                        target.style.height = target.scrollHeight + 'px';
+                      }}
+                    />
+                    {showSuggestions[item.id] && suggestions[item.id]?.length > 0 && (
+                      <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg mt-1 max-h-[200px] overflow-y-auto">
+                        {suggestions[item.id].map((suggestion) => (
+                          <div
+                            key={suggestion}
+                            onClick={() => handleDescriptionSelect(item.id, suggestion)}
+                            className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 flex items-center justify-between ${
+                              suggestion === inputValues[item.id] ? 'bg-gray-50' : ''
+                            }`}
+                          >
+                            {suggestion}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="col-span-1 w-full">
                   <div className="relative">
                     <Input
                       type="number"
@@ -210,23 +356,23 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                       value={item.quantity || ""}
                       onChange={(e) => updateItem(item.id, "quantity", parseFloat(e.target.value) || 0)}
                       onFocus={handleNumberInputFocus}
-                      className="text-base md:text-sm pr-8 min-w-0 w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="text-sm pr-8 min-w-0 w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     {isQuantityInvalid(item.quantity) && (
                       <AlertTriangle className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-500" />
                     )}
                   </div>
                 </div>
-                <div className="md:col-span-1 w-full">
-                  <div className="md:hidden mb-1 font-medium text-sm">Enhet</div>
+                
+                <div className="col-span-1 w-full">
                   <Input
                     value={item.unit || ""}
                     onChange={(e) => updateItem(item.id, "unit", e.target.value)}
-                    className="text-base md:text-sm min-w-0 w-full"
+                    className="text-sm min-w-0 w-full"
                   />
                 </div>
-                <div className="md:col-span-2 w-full">
-                  <div className="md:hidden mb-1 font-medium text-sm">Á pris</div>
+                
+                <div className="col-span-2 w-full">
                   <div className="relative">
                     <Input
                       type="number"
@@ -234,21 +380,21 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                       value={item.price || ""}
                       onChange={(e) => updateItem(item.id, "price", parseFloat(e.target.value) || 0)}
                       onFocus={handleNumberInputFocus}
-                      className="text-base md:text-sm pr-8 min-w-0 w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="text-sm pr-8 min-w-0 w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                     {isPriceInvalid(item.price) && (
                       <AlertTriangle className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-orange-500" />
                     )}
                   </div>
                 </div>
-                <div className="md:col-span-2 w-full col-span-2">
-                  <div className="md:hidden mb-1 font-medium text-sm">Rabatt</div>
+                
+                <div className="col-span-2 w-full">
                   <div className="flex space-x-1">
                     <Select
                       value={item.discountType || "amount"}
                       onValueChange={(value: 'percentage' | 'amount') => updateItem(item.id, "discountType", value)}
                     >
-                      <SelectTrigger className="w-[60px] text-base md:text-sm">
+                      <SelectTrigger className="w-[60px] text-sm">
                         <SelectValue>
                           {item.discountType === "percentage" ? <Percent className="h-4 w-4" /> : <Tag className="h-4 w-4" />}
                         </SelectValue>
@@ -264,36 +410,36 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
                       value={item.discountValue || ""}
                       onChange={(e) => updateItem(item.id, "discountValue", e.target.value ? parseFloat(e.target.value) : undefined)}
                       placeholder="0"
-                      className="min-w-0 flex-1 text-base md:text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      className="min-w-0 flex-1 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                   </div>
                 </div>
-              </div>
-              
-              <div className="md:col-span-1 flex items-center w-full pt-2 md:pt-0 order-3 md:order-none">
-                <div className="md:hidden mr-2 font-medium text-sm">ROT-avdrag</div>
-                <Checkbox
-                  checked={item.hasRotDeduction}
-                  onCheckedChange={(checked) => updateItem(item.id, "hasRotDeduction", !!checked)}
-                  className="h-5 w-5 md:h-4 md:w-4"
-                />
-              </div>
-              <div className="md:col-span-12 flex justify-between items-center w-full order-4 md:order-none">
-                <div className="text-sm min-w-0 flex-1 mr-2">
-                  <span className="break-words">Summa: {calculateItemSubtotal(item).toLocaleString()} kr</span>
-                  {item.hasRotDeduction && (
-                    <span className="ml-2 text-green-600 break-words">(ROT-avdrag: {(calculateItemSubtotal(item) * 0.3).toLocaleString()} kr)</span>
-                  )}
+                
+                <div className="col-span-1 flex items-center justify-center w-full">
+                  <Checkbox
+                    checked={item.hasRotDeduction}
+                    onCheckedChange={(checked) => updateItem(item.id, "hasRotDeduction", !!checked)}
+                    className="h-4 w-4"
+                  />
                 </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeItem(item.id)}
-                  className="flex-shrink-0"
-                >
-                  <Trash2 className="h-5 w-5 md:h-4 md:w-4" />
-                </Button>
+                
+                <div className="col-span-12 flex justify-between items-center w-full">
+                  <div className="text-sm min-w-0 flex-1 mr-2">
+                    <span className="break-words">Summa: {calculateItemSubtotal(item).toLocaleString()} kr</span>
+                    {item.hasRotDeduction && (
+                      <span className="ml-2 text-green-600 break-words">(ROT-avdrag: {(calculateItemSubtotal(item) * 0.3).toLocaleString()} kr)</span>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeItem(item.id)}
+                    className="flex-shrink-0"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
@@ -302,9 +448,9 @@ export function QuoteItemsSection({ quote, setQuote }: QuoteItemsSectionProps) {
             type="button"
             variant="outline"
             onClick={addItem}
-            className="mt-4 w-full md:w-auto"
+            className="mt-4 w-full xl:w-auto"
           >
-            <Plus className="h-5 w-5 md:h-4 md:w-4 mr-2" />
+            <Plus className="h-5 w-5 xl:h-4 xl:w-4 mr-2" />
             Lägg till rad
           </Button>
 
@@ -328,15 +474,15 @@ function TotalSection({ quote, setQuote }: TotalSectionProps) {
         <div>{calculateSubtotal(quote.items).toLocaleString()} kr</div>
       </div>
       
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2">
-        <div className="flex flex-col md:flex-row md:items-center mb-2 md:mb-0 md:space-x-2 w-full md:w-auto">
-          <div className="font-medium mb-1 md:mb-0">Total rabatt:</div>
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-2">
+        <div className="flex flex-col xl:flex-row xl:items-center mb-2 xl:mb-0 xl:space-x-2 w-full xl:w-auto">
+          <div className="font-medium mb-1 xl:mb-0">Total rabatt:</div>
           <div className="flex items-center space-x-1">
             <Select
               value={quote.totalDiscountType || "amount"}
               onValueChange={(value: 'percentage' | 'amount') => setQuote({ ...quote, totalDiscountType: value })}
             >
-              <SelectTrigger className="w-[60px] text-base md:text-sm">
+              <SelectTrigger className="w-[60px] text-base xl:text-sm">
                 <SelectValue>
                   {quote.totalDiscountType === "percentage" ? <Percent className="h-4 w-4" /> : <Tag className="h-4 w-4" />}
                 </SelectValue>
@@ -352,7 +498,7 @@ function TotalSection({ quote, setQuote }: TotalSectionProps) {
               value={quote.totalDiscountValue || ""}
               onChange={(e) => setQuote({ ...quote, totalDiscountValue: e.target.value ? parseFloat(e.target.value) : undefined })}
               placeholder="0"
-              className="w-[100px] text-base md:text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className="w-[100px] text-base xl:text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
         </div>
