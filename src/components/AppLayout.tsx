@@ -41,13 +41,13 @@ export function AppLayout({ children, title = "OffertPro" }: AppLayoutProps) {
       open={sidebarOpen}
       onOpenChange={handleSidebarChange}
     >
-      <div className="min-h-screen w-full flex">
+      <div className="min-h-screen w-full flex bg-background text-foreground">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
           {/* Desktop header with sidebar trigger */}
-          <header className="hidden md:flex h-14 items-center border-b bg-background px-4">
+          <header className="hidden md:flex h-14 items-center border-b bg-card/50 backdrop-blur-sm px-4">
             <SidebarTrigger />
-            <div className="ml-4 text-lg font-semibold text-brand-800">{title}</div>
+            <div className="ml-4 text-lg font-semibold text-foreground">{title}</div>
           </header>
           
           {/* Mobile header */}
