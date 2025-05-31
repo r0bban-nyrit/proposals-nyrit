@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { Header } from "@/components/Header";
@@ -10,6 +9,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { FloatingActionButton } from "@/components/FloatingActionButton";
+import { generateDemoQuotes } from "@/utils/demoData";
 
 export default function Offerter() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
@@ -24,7 +24,20 @@ export default function Offerter() {
     const storedQuotes = localStorage.getItem("quotes");
     
     if (storedQuotes) {
-      setQuotes(JSON.parse(storedQuotes));
+      const parsedQuotes = JSON.parse(storedQuotes);
+      if (parsedQuotes.length === 0) {
+        // If no quotes exist, generate demo data
+        const demoQuotes = generateDemoQuotes();
+        setQuotes(demoQuotes);
+        localStorage.setItem("quotes", JSON.stringify(demoQuotes));
+      } else {
+        setQuotes(parsedQuotes);
+      }
+    } else {
+      // If no quotes storage exists, generate demo data
+      const demoQuotes = generateDemoQuotes();
+      setQuotes(demoQuotes);
+      localStorage.setItem("quotes", JSON.stringify(demoQuotes));
     }
     
     setLoading(false);
