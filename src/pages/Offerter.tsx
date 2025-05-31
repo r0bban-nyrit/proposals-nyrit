@@ -2,13 +2,14 @@
 import { useEffect, useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { Header } from "@/components/Header";
-import { Button } from "@/components/ui/button";
 import { Quote } from "@/types";
 import { QuoteListItem } from "@/components/QuoteListItem";
 import { Plus } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
+import { FloatingActionButton } from "@/components/FloatingActionButton";
 
 export default function Offerter() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
@@ -64,13 +65,7 @@ export default function Offerter() {
 
   return (
     <AppLayout>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 md:mb-6">
-        <Header title="Offerter" description="Hantera dina offerter" />
-        <Button onClick={() => navigate("/skapa-offert")} className="w-full sm:w-auto">
-          <Plus className="h-4 w-4 mr-2" />
-          Skapa ny offert
-        </Button>
-      </div>
+      <Header title="Offerter" description="Hantera dina offerter" />
       
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className={`w-full ${isMobile ? 'grid grid-cols-2' : ''}`}>
@@ -115,10 +110,6 @@ export default function Offerter() {
               <p className="text-muted-foreground mt-1">
                 Kom igång genom att skapa din första offert
               </p>
-              <Button onClick={() => navigate("/skapa-offert")} className="mt-4">
-                <Plus className="h-4 w-4 mr-2" />
-                Skapa ny offert
-              </Button>
             </div>
           )}
         </TabsContent>
@@ -219,6 +210,8 @@ export default function Offerter() {
           )}
         </TabsContent>
       </Tabs>
+      
+      <FloatingActionButton />
     </AppLayout>
   );
 }
