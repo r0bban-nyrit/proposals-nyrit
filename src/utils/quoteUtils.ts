@@ -1,82 +1,105 @@
 
 import { QuoteItem } from "@/types";
 
-// Common service suggestions
 export const serviceDescriptionSuggestions = [
-  "Målning av innervägg",
-  "Målning av tak",
-  "Målning av snickerier",
-  "Byte av golv",
-  "Montering av kök",
-  "Montering av badrum",
-  "Installation av belysning",
-  "Tapetsering",
-  "Elinstallation",
-  "VVS-installation",
-  "Plattsättning",
-  "Snickeriarbete",
-  "Golvslipning",
-  "Badrumsrenovering",
-  "Köksrenovering",
-  "Utomhusmålning",
-  "Byggarbete",
-  "Trädgårdsarbete",
-  "Murning",
-  "Plåtarbete",
+  // Låsservice
+  "Akut låsöppning - dygnet runt",
+  "Låsbyte - säkerhetslås",
+  "Låsinstallation - ny dörr",
+  "Låsreparation - mekanism",
+  "Cylinderbyte - högskydd",
+  "Nyckelkopiering - säkerhetsnycklar",
+  "Låsning av lägenhetsdörr",
+  "Bilupplåsning - utan skada",
+  "Säkerhetskontroll av lås",
+  "Montering av extralås",
+  
+  // Säkerhetslösningar
+  "Installation av överfallslarm",
+  "Montering av säkerhetsdörr",
+  "Installation av dörrkedja",
+  "Säkerhetsbesiktning av fastighet",
+  "Passersystem installation",
+  "Kodlås installation",
+  "Fingeravtryckslås montering",
+  "Säkerhetsglas installation",
+  
+  // Specialtjänster
+  "Kassaskåpsöppning",
+  "Bilnyckelprogrammering",
+  "Transpondernycklar",
+  "Matlåda/brevlådeöppning",
+  "Garagelås service",
+  "Dörrstängare justering",
+  "Nödsituationsupplåsning",
+  "Låskonsultation"
 ];
 
-// Calculate the item price after discount
-export const calculateItemPrice = (item: QuoteItem): number => {
-  const basePrice = item.quantity * item.price;
+export const quoteTitleSuggestions = [
+  // Allmänna offerter
+  "Offert - Låsservice",
+  "Offert - Säkerhetslösning",
+  "Offert - Akut låsöppning",
+  "Offert - Låsbyte och installation",
   
-  if (!item.discountValue || item.discountValue <= 0) {
+  // Specifika tjänster
+  "Offert - Säkerhetsdörr med lås",
+  "Offert - Komplett låssystem",
+  "Offert - Nyckelservice och kopiering",
+  "Offert - Bilupplåsning och nycklar",
+  "Offert - Fastighetsbesiktning säkerhet",
+  "Offert - Passersystem installation",
+  
+  // Nödsituationer
+  "Offert - Akutinsats dygnet runt",
+  "Offert - Nödöppning och reparation",
+  "Offert - Säkerhetsuppdatering",
+  
+  // Kommersiella
+  "Offert - Företagssäkerhet",
+  "Offert - Kontorslås och säkerhet",
+  "Offert - Butikssäkerhet",
+  "Offert - Industriella låslösningar"
+];
+
+export function calculateItemPrice(item: QuoteItem): number {
+  const basePrice = (item.quantity || 0) * (item.price || 0);
+  
+  if (!item.discountValue) {
     return basePrice;
   }
   
-  if (item.discountType === 'percentage') {
-    return basePrice * (1 - item.discountValue / 100);
+  if (item.discountType === "percentage") {
+    return basePrice - (basePrice * (item.discountValue / 100));
   } else {
     return Math.max(0, basePrice - item.discountValue);
   }
-};
+}
 
-// Calculate ROT deduction for eligible item
-export const calculateRotDeduction = (item: QuoteItem): number => {
-  if (!item.hasRotDeduction) return 0;
-  
-  // ROT deduction is 30% of labor cost, up to certain limits
-  const itemTotal = calculateItemPrice(item);
-  return itemTotal * 0.3; // 30% of the labor cost
-};
-
-// Calculate the total before discount
-export const calculateSubtotal = (items: QuoteItem[]): number => {
+export function calculateSubtotal(items: QuoteItem[]): number {
   return items.reduce((sum, item) => sum + calculateItemPrice(item), 0);
-};
+}
 
-// Calculate the total after discount
-export const calculateTotal = (
-  items: QuoteItem[],
-  totalDiscountType?: 'percentage' | 'amount',
+export function calculateTotal(
+  items: QuoteItem[], 
+  totalDiscountType?: 'percentage' | 'amount', 
   totalDiscountValue?: number
-): number => {
+): number {
   const subtotal = calculateSubtotal(items);
   
-  if (!totalDiscountValue || totalDiscountValue <= 0) {
+  if (!totalDiscountValue) {
     return subtotal;
   }
   
-  if (totalDiscountType === 'percentage') {
-    return subtotal * (1 - totalDiscountValue / 100);
+  if (totalDiscountType === "percentage") {
+    return subtotal - (subtotal * (totalDiscountValue / 100));
   } else {
     return Math.max(0, subtotal - totalDiscountValue);
   }
-};
+}
 
-// Calculate the total ROT deduction
-export const calculateTotalRotDeduction = (items: QuoteItem[]): number => {
+export function calculateTotalRotDeduction(items: QuoteItem[]): number {
   return items
     .filter(item => item.hasRotDeduction)
-    .reduce((sum, item) => sum + calculateRotDeduction(item), 0);
-};
-
+    .reduce((sum, item) => sum + (calculateItemPrice(item) * 0.3), 0);
+}
